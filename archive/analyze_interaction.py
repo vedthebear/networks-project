@@ -84,10 +84,26 @@ def compute_centralities(G: nx.DiGraph, betweenness_sample: int = 500) -> pd.Dat
 
 
 def detect_communities(G: nx.DiGraph):
-    """Louvain on the undirected projection."""
+    """Louvain on the undirected projection; safe for empty/degenerate graphs.
+
+    Returns (DataFrame rows, modularity) where rows has columns
+    ['agent','community','community_size']. On failure or empty graph
+    returns an empty DataFrame and modularity=float('nan').
+    """
     UG = G.to_undirected()
-    communities = list(nx.community.louvain_communities(UG, seed=42, weight="weight"))
-    modularity = nx.community.modularity(UG, communities, weight="weight")
+    # Guard: no nodes -> nothing to do
+    if UG.number_of_nodes() == 0:
+        return pd.DataFrame(columns=["agent", "community", "community_size"]), float("nan")
+
+    try:
+        communities = list(nx.community.louvain_communities(UG, seed=42, weight="weight"))
+        if not communities:
+            modularity = float("nan")
+        else:
+            modularity = nx.community.modularity(UG, communities, weight="weight")
+    except Exception as e:
+        print(f"  community detection failed: {e}")
+        return pd.DataFrame(columns=["agent", "community", "community_size"]), float("nan")
 
     rows = []
     for i, comm in enumerate(communities):
@@ -118,6 +134,7 @@ def plot_top_agents(cent_df: pd.DataFrame, out_path: Path, top_k: int = 20):
 
 
 def plot_degree_distribution(G: nx.DiGraph, out_path: Path):
+    
     fig, ax = plt.subplots(figsize=(7, 5))
     for which, vals in (("in", [d for _, d in G.in_degree()]),
                         ("out", [d for _, d in G.out_degree()])):
@@ -186,16 +203,45 @@ def main():
     plot_community_sizes(comm, args.out / "interaction_community_sizes.png")
 
     UG = G.to_undirected()
+
+    agents = G.number_of_nodes()
+    edges = G.number_of_edges()
+
+    # Defensive calculations: compute each metric only when it makes sense
+    try:
+        density = nx.density(G) if agents > 1 else float("nan")
+    except Exception:
+        density = float("nan")
+
+    try:
+        avg_clustering = nx.average_clustering(UG) if UG.number_of_nodes() > 0 else float("nan")
+    except Exception:
+        avg_clustering = float("nan")
+
+    try:
+        reciprocity = nx.reciprocity(G) if edges else float("nan")
+    except Exception:
+        reciprocity = float("nan")
+
+    try:
+        assort = nx.degree_assortativity_coefficient(G)
+    except Exception:
+        assort = float("nan")
+
+    communities = int(comm["community"].nunique()) if (isinstance(comm, pd.DataFrame) and not comm.empty) else 0
+
     summary = {
-        "agents":         G.number_of_nodes(),
-        "edges":          G.number_of_edges(),
-        "density":        nx.density(G),
-        "avg_clustering": nx.average_clustering(UG),
-        "reciprocity":    nx.reciprocity(G) if G.number_of_edges() else float("nan"),
-        "assortativity":  nx.degree_assortativity_coefficient(G),
-        "communities":    comm["community"].nunique() if not comm.empty else 0,
+        "agents":         agents,
+        "edges":          edges,
+        "density":        density,
+        "avg_clustering": avg_clustering,
+        "reciprocity":    reciprocity,
+        "assortativity":  assort,
+        "communities":    communities,
         "modularity":     modularity,
     }
+
+    # Write summary and print headline stats
     pd.Series(summary).to_csv(args.out / "interaction_summary.csv", header=False)
     print("\nHeadline stats:")
     for k, v in summary.items():

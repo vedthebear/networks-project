@@ -16,6 +16,7 @@ If the API has shifted, adjust the constants in the ENDPOINTS block.
 import csv
 import json
 import os
+import random
 import time
 from pathlib import Path
 
@@ -32,13 +33,17 @@ API_KEY = os.getenv("MOLTBOOK_API_KEY")
 BASE_URL = os.getenv("MOLTBOOK_BASE_URL", "https://www.moltbook.com/api/v1")
 
 # Moltbook's documented limit is 100 req/min on read endpoints. Sleeping
-# 0.7s between calls keeps us comfortably under that.
-REQUEST_DELAY_SEC = 0.7
+# 1.0s between calls keeps us comfortably under that.
+REQUEST_DELAY_SEC = 1.0
 
-# Retry settings for transient failures (5xx and network errors)
-# Tune via environment if desired: MOLTBOOK_MAX_RETRIES, MOLTBOOK_BACKOFF_FACTOR
-MAX_RETRIES = int(os.getenv("MOLTBOOK_MAX_RETRIES", "3"))
-BACKOFF_FACTOR = float(os.getenv("MOLTBOOK_BACKOFF_FACTOR", "1.5"))
+# Retry settings for transient failures (5xx and network errors).
+# On a 500 the server is stressed; we wait longer and add jitter so
+# a burst of retries doesn't all hit again at the same moment.
+#   attempt 1 → wait ~5s,  attempt 2 → ~10s,  attempt 3 → ~20s ...
+# Tune via environment: MOLTBOOK_MAX_RETRIES, MOLTBOOK_BACKOFF_FACTOR
+MAX_RETRIES    = int(os.getenv("MOLTBOOK_MAX_RETRIES",    "5"))
+BACKOFF_FACTOR = float(os.getenv("MOLTBOOK_BACKOFF_FACTOR", "5.0"))
+BACKOFF_JITTER = 2.0   # add up to this many extra random seconds to each wait
 # Where to save collected data.
 DATA_DIR = Path(__file__).parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -83,8 +88,8 @@ def _get(path, params=None):
             # Network-level error (DNS, timeout, connection, etc.)
             if attempt >= MAX_RETRIES:
                 raise MoltbookError(f"GET {url} -> exception after {attempt} attempts: {e}")
-            wait = BACKOFF_FACTOR * (2 ** (attempt - 1))
-            print(f"  request error ({e}); retrying in {wait:.1f}s (attempt {attempt}/{MAX_RETRIES})")
+            wait = BACKOFF_FACTOR * (2 ** (attempt - 1)) + random.uniform(0, BACKOFF_JITTER)
+            print(f"  network error ({e}); retrying in {wait:.1f}s (attempt {attempt}/{MAX_RETRIES})")
             time.sleep(wait)
             continue
 
@@ -93,21 +98,23 @@ def _get(path, params=None):
 
         # 429 = rate limited. Honor Retry-After if present, then retry.
         if resp.status_code == 429:
-            wait = int(resp.headers.get("Retry-After", "30"))
-            print(f"  rate-limited; sleeping {wait}s")
+            wait = int(resp.headers.get("Retry-After", "60"))
+            print(f"  rate-limited (429); sleeping {wait}s")
             time.sleep(wait)
             continue
 
-        # 5xx server errors: retry a few times with exponential backoff
+        # 5xx server errors: back off and retry with jitter so a cluster of
+        # in-flight requests doesn't all hammer the server at the same moment.
         if 500 <= resp.status_code < 600:
             if attempt < MAX_RETRIES:
-                wait = BACKOFF_FACTOR * (2 ** (attempt - 1))
-                print(f"  server error {resp.status_code}; retrying in {wait:.1f}s (attempt {attempt}/{MAX_RETRIES})")
+                wait = BACKOFF_FACTOR * (2 ** (attempt - 1)) + random.uniform(0, BACKOFF_JITTER)
+                print(f"  server error {resp.status_code}; retrying in {wait:.1f}s "
+                      f"(attempt {attempt}/{MAX_RETRIES})")
                 time.sleep(wait)
                 continue
-            # final attempt failed; include headers/body to aid debugging
             raise MoltbookError(
-                f"GET {url} -> {resp.status_code}: {resp.text[:1000]} Headers: {dict(resp.headers)}"
+                f"GET {url} -> {resp.status_code} after {attempt} attempts: "
+                f"{resp.text[:500]}"
             )
 
         if not resp.ok:
@@ -130,21 +137,21 @@ def check_auth():
 # Collectors
 # ---------------------------------------------------------------------------
 
-def fetch_posts(submolt=None, sort="new", max_posts=None):
+def fetch_posts(submolt=None, sort="new", max_posts=300):
     """
     Page through the posts feed (global or one submolt).
 
     If max_posts is None, run pagination until exhausted (every page).
     If max_posts is an int, stop once we have at least that many.
 
-    Moltbook's feed pagination uses `after=<post_id>` cursor style
-    (Reddit-flavored). If the response uses a different key, adjust
-    `cursor_key` below.
+    Tries cursor-based pagination first (after=<post_id>). If the API
+    does not return a cursor, falls back to offset-based pagination
+    (offset=N) so the second and third pages are still collected.
     """
-    cursor_key = "after"
     page_size = 100
     posts = []
     cursor = None
+    offset = 0
 
     if submolt:
         path = ENDPOINTS["submolt"].format(name=submolt)
@@ -160,12 +167,13 @@ def fetch_posts(submolt=None, sort="new", max_posts=None):
 
         params = {"sort": sort, "limit": page_size}
         if cursor:
-            params[cursor_key] = cursor
+            params["after"] = cursor
+        elif offset:
+            params["offset"] = offset
 
         data = _get(path, params=params)
 
-        # Response shape can be either {"posts": [...], "after": "..."} or
-        # a bare list. Handle both.
+        # Response shape can be {"posts": [...], "after": "..."} or a bare list.
         if isinstance(data, dict):
             batch = data.get("posts") or data.get("data") or []
             cursor = data.get("after") or data.get("next_cursor")
@@ -179,8 +187,14 @@ def fetch_posts(submolt=None, sort="new", max_posts=None):
         posts.extend(batch)
         print(f"  +{len(batch)} (total {len(posts)})")
 
-        if not cursor:
-            break
+        # If the API returned a cursor, use it next iteration.
+        # If not but we got a full page, try offset pagination for the next page.
+        if cursor:
+            offset = 0           # cursor takes priority; reset offset
+        elif len(batch) == page_size:
+            offset = len(posts)  # full page with no cursor — try offset next
+        else:
+            break                # partial page and no cursor means we're done
 
     if max_posts is not None:
         return posts[:max_posts]
@@ -222,12 +236,34 @@ def discover_submolts(top_n=20):
 
 
 def fetch_comments(post_id):
-    """Get all comments on a post (a flat list; thread structure is in
-    the parent_id field of each comment)."""
-    data = _get(ENDPOINTS["comments"].format(post_id=post_id))
-    if isinstance(data, dict):
-        return data.get("comments") or data.get("data") or []
-    return data
+    """Get all comments on a post, paginating through all pages."""
+    path = ENDPOINTS["comments"].format(post_id=post_id)
+    comments = []
+    cursor = None
+
+    while True:
+        params = {"limit": 100}
+        if cursor:
+            params["after"] = cursor
+
+        data = _get(path, params=params)
+
+        if isinstance(data, dict):
+            batch = data.get("comments") or data.get("data") or []
+            cursor = data.get("after") or data.get("next_cursor")
+        else:
+            batch = data
+            cursor = None
+
+        if not batch:
+            break
+
+        comments.extend(batch)
+
+        if not cursor:
+            break
+
+    return comments
 
 
 # ---------------------------------------------------------------------------
@@ -389,19 +425,252 @@ def build_agent_reply_edges(posts, comments):
 
 
 # ---------------------------------------------------------------------------
+# Incremental helpers shared by posts, agents, and comments
+# ---------------------------------------------------------------------------
+
+# Flush cadence (in number of items processed)
+POSTS_SAVE_EVERY   = 1      # save after every submolt (already fast)
+AGENT_SAVE_EVERY   = 50     # save after every 50 agent profiles
+COMMENT_SAVE_EVERY = 25     # save after every 25 posts worth of comments
+
+# Progress + data files
+_POSTS_PROGRESS    = DATA_DIR / ".posts_progress.json"
+_AGENTS_PROGRESS   = DATA_DIR / ".agents_progress.json"
+_COMMENTS_PROGRESS = DATA_DIR / ".comments_progress.json"
+
+POSTS_FILE    = DATA_DIR / "posts.json"
+AGENTS_FILE   = DATA_DIR / "agents.json"
+COMMENTS_FILE = DATA_DIR / "comments.json"
+
+POSTS_CSV_FIELDS = [
+    "id", "submolt", "title", "content", "author_id", "author_name",
+    "created_at", "score", "upvotes", "downvotes", "num_comments",
+]
+AGENTS_CSV_FIELDS = [
+    "id", "name", "description", "owner", "created_at",
+    "post_count", "comment_count", "karma", "model",
+]
+COMMENTS_CSV_FIELDS = [
+    "id", "post_id", "parent_id", "author_id", "author_name",
+    "content", "created_at", "score",
+]
+
+
+def _read_progress(path):
+    """Return set of already-done item keys from a progress file."""
+    if path.exists():
+        try:
+            return set(json.load(open(path, encoding="utf-8")).get("done", []))
+        except (json.JSONDecodeError, KeyError):
+            pass
+    return set()
+
+
+def _write_progress(path, done):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({"done": list(done)}, f)
+
+
+def _load_json(path):
+    """Load a JSON list from disk, returning [] on missing/corrupt file."""
+    if path.exists():
+        try:
+            return json.load(open(path, encoding="utf-8"))
+        except json.JSONDecodeError:
+            print(f"  Warning: {path} was corrupt, starting fresh.")
+    return []
+
+
+def _flush_json(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+
+def _flush_csv(name, rows, fieldnames):
+    path = DATA_DIR / f"{name}.csv"
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"  wrote {path} ({len(rows)} rows)")
+
+
+def fetch_posts_incremental(submolts, max_posts_per_feed):
+    """
+    Fetch posts for each submolt with incremental saving and resume support.
+
+    Progress is tracked per submolt name in .posts_progress.json.
+    Already-completed submolts are skipped entirely on restart.
+    posts.json and posts.csv are updated after every successful submolt.
+    Submolts that fail after all retries are skipped for this run and
+    retried automatically on the next run (they are NOT marked done).
+    """
+    done_submolts = _read_progress(_POSTS_PROGRESS)
+    all_posts = _load_json(POSTS_FILE)
+    by_id = {p["id"]: p for p in all_posts if p.get("id")}
+
+    todo = [s for s in submolts if s not in done_submolts]
+    print(f"\nFetching posts: {len(todo)} submolts remaining "
+          f"({len(done_submolts)} already done) ...")
+
+    failed = []
+    for s in todo:
+        try:
+            batch = fetch_posts(submolt=s, max_posts=max_posts_per_feed)
+        except MoltbookError as e:
+            print(f"  !! submolt '{s}' skipped after all retries: {e}")
+            failed.append(s)
+            continue   # not marked done — will be retried next run
+
+        added = 0
+        for p in batch:
+            p.setdefault("submolt", s)
+            if p.get("id") and p["id"] not in by_id:
+                by_id[p["id"]] = p
+                added += 1
+
+        done_submolts.add(s)
+        all_posts = list(by_id.values())
+        _flush_json(POSTS_FILE, all_posts)
+        _write_progress(_POSTS_PROGRESS, done_submolts)
+        print(f"  submolt '{s}': +{added} new posts (total {len(all_posts)})")
+
+    _flush_csv("posts", all_posts, POSTS_CSV_FIELDS)
+    print(f"  wrote {POSTS_FILE} ({len(all_posts)} posts)")
+    if failed:
+        print(f"  !! {len(failed)} submolts skipped due to server errors "
+              f"(will retry next run): {failed}")
+    return all_posts
+
+
+def fetch_agents_incremental(all_posts):
+    """
+    Fetch agent profiles for every unique post author with incremental saving
+    and resume support.
+
+    Progress is tracked per agent ID in .agents_progress.json.
+    Already-fetched agents are skipped on restart.
+    agents.json is flushed every AGENT_SAVE_EVERY new profiles.
+    """
+    done_ids  = _read_progress(_AGENTS_PROGRESS)
+    agents    = _load_json(AGENTS_FILE)
+    by_id     = {a["id"]: a for a in agents if a.get("id")}
+
+    author_ids = {
+        p.get("author_id") or (p.get("author") or {}).get("id")
+        for p in all_posts
+    }
+    author_ids.discard(None)
+
+    todo = sorted(author_ids - done_ids)
+    print(f"\nFetching agent profiles: {len(todo)} remaining "
+          f"({len(done_ids)} already done) ...")
+
+    pending = 0
+    failed = []
+    for i, aid in enumerate(todo):
+        try:
+            agent = fetch_agent(aid)
+            if agent.get("id"):
+                by_id[agent["id"]] = agent
+            else:
+                by_id[aid] = agent
+            done_ids.add(aid)   # only marked done on success
+        except MoltbookError as e:
+            print(f"  !! agent {aid} skipped after all retries: {e}")
+            failed.append(aid)  # not marked done — retried next run
+
+        pending += 1
+        if pending >= AGENT_SAVE_EVERY or i == len(todo) - 1:
+            agents = list(by_id.values())
+            _flush_json(AGENTS_FILE, agents)
+            _write_progress(_AGENTS_PROGRESS, done_ids)
+            pending = 0
+            print(f"  {i + 1}/{len(todo)} agents processed "
+                  f"({len(agents)} fetched, {len(failed)} failed so far)")
+
+    agents = list(by_id.values())
+    _flush_csv("agents", agents, AGENTS_CSV_FIELDS)
+    print(f"  wrote {AGENTS_FILE} ({len(agents)} agents)")
+    if failed:
+        print(f"  !! {len(failed)} agents skipped due to server errors "
+              f"(will retry next run)")
+    return agents
+
+
+def fetch_comments_incremental(all_posts):
+    """
+    Fetch comments for every post with incremental saving and resume support.
+
+    On each run:
+      - Reads .comments_progress.json to find which post IDs are already done.
+      - Loads comments.json for comments already collected.
+      - Skips posts that are already done.
+      - Saves comments.json + .comments_progress.json every COMMENT_SAVE_EVERY posts.
+      - Writes comments.csv at the very end.
+
+    If the run is interrupted and restarted, it picks up exactly where it left off.
+    """
+    done_ids    = _read_progress(_COMMENTS_PROGRESS)
+    all_comments = _load_json(COMMENTS_FILE)
+
+    if done_ids:
+        print(f"  Resuming: {len(done_ids)} posts already done, "
+              f"{len(all_comments)} comments already collected.")
+
+    posts_todo = [p for p in all_posts if p.get("id") and p["id"] not in done_ids]
+    print(f"\nFetching comments for {len(posts_todo)} posts "
+          f"({len(done_ids)} already done, {len(all_posts)} total) ...")
+
+    pending = 0
+    failed = []
+
+    for i, p in enumerate(posts_todo):
+        pid = p["id"]
+        try:
+            cs = fetch_comments(pid)
+            for c in cs:
+                c["post_id"] = pid
+            all_comments.extend(cs)
+            done_ids.add(pid)   # only marked done on success
+        except MoltbookError as e:
+            print(f"  !! post {pid} skipped after all retries: {e}")
+            failed.append(pid)  # not marked done — retried next run
+
+        pending += 1
+        if pending >= COMMENT_SAVE_EVERY or i == len(posts_todo) - 1:
+            _flush_json(COMMENTS_FILE, all_comments)
+            _write_progress(_COMMENTS_PROGRESS, done_ids)
+            pending = 0
+            print(f"  saved — {i + 1}/{len(posts_todo)} posts processed, "
+                  f"{len(all_comments)} comments total "
+                  f"({len(failed)} failed so far)")
+
+    _flush_csv("comments", all_comments, COMMENTS_CSV_FIELDS)
+    print(f"  wrote {COMMENTS_FILE} ({len(all_comments)} comments)")
+    if failed:
+        print(f"  !! {len(failed)} posts skipped due to server errors "
+              f"(will retry next run)")
+    return all_comments
+
+
+# ---------------------------------------------------------------------------
 # Main pipeline
 # ---------------------------------------------------------------------------
 
 def run(submolts=None, max_posts_per_feed=300, fetch_comments_for_posts=True,
         build_edges=True, auto_discover_top_n=0):
     """
-    End-to-end collection.
+    End-to-end collection with full incremental save + resume for all three
+    data types (posts, agents, comments).
 
     submolts: list of submolt names to crawl, or None for the global feed.
     auto_discover_top_n: if > 0 and submolts is None, discover the top N
-        most active submolts and crawl each (good for community-to-community
-        comparisons, since the global feed is biased toward popular posts).
-    build_edges: also emit network edge-list CSVs after fetching.
+        most active submolts and crawl each.
+    build_edges: emit network edge-list CSVs after fetching.
+
+    On restart, already-completed submolts / agents / comment-posts are
+    detected from their progress files and skipped automatically.
     """
     check_auth()
 
@@ -410,86 +679,26 @@ def run(submolts=None, max_posts_per_feed=300, fetch_comments_for_posts=True,
         print(f"Discovered submolts: {submolts}")
 
     # 1. Posts ---------------------------------------------------------------
-    all_posts = []
     if submolts:
-        for s in submolts:
-            batch = fetch_posts(submolt=s, max_posts=max_posts_per_feed)
-            for p in batch:
-                p.setdefault("submolt", s)
-            all_posts.extend(batch)
-            # checkpoint after each submolt so a crash mid-crawl is survivable
-            save_json("posts", all_posts)
+        all_posts = fetch_posts_incremental(submolts, max_posts_per_feed)
     else:
-        all_posts = fetch_posts(max_posts=max_posts_per_feed)
+        # Global feed: no per-submolt tracking needed, just load if exists
+        if POSTS_FILE.exists():
+            print("\nLoading existing posts.json ...")
+            all_posts = _load_json(POSTS_FILE)
+            print(f"  {len(all_posts)} posts loaded")
+        else:
+            all_posts = fetch_posts(max_posts=max_posts_per_feed)
+            _flush_json(POSTS_FILE, all_posts)
+            _flush_csv("posts", all_posts, POSTS_CSV_FIELDS)
 
-    # de-dupe by post id
-    by_id = {p.get("id"): p for p in all_posts if p.get("id")}
-    all_posts = list(by_id.values())
-    save_json("posts", all_posts)
-    save_csv(
-        "posts",
-        all_posts,
-        fieldnames=[
-            "id", "submolt", "title", "content", "author_id", "author_name",
-            "created_at", "score", "upvotes", "downvotes", "num_comments",
-        ],
-    )
+    # 2. Agents --------------------------------------------------------------
+    agents = fetch_agents_incremental(all_posts)
 
-    # 2. Agents (collected from post authors) -------------------------------
-    author_ids = {
-        p.get("author_id") or (p.get("author") or {}).get("id")
-        for p in all_posts
-    }
-    author_ids.discard(None)
-    print(f"\nFetching {len(author_ids)} agent profiles ...")
-
-    agents = []
-    for aid in sorted(author_ids):
-        try:
-            agents.append(fetch_agent(aid))
-        except MoltbookError as e:
-            print(f"  skip agent {aid}: {e}")
-
-    save_json("agents", agents)
-    save_csv(
-        "agents",
-        agents,
-        fieldnames=[
-            "id", "name", "description", "owner", "created_at",
-            "post_count", "comment_count", "karma", "model",
-        ],
-    )
-
-    # 3. Comments (for interaction graph) -----------------------------------
+    # 3. Comments ------------------------------------------------------------
     all_comments = []
     if fetch_comments_for_posts:
-        print(f"\nFetching comments for {len(all_posts)} posts ...")
-        for i, p in enumerate(all_posts):
-            pid = p.get("id")
-            if not pid:
-                continue
-            try:
-                cs = fetch_comments(pid)
-                for c in cs:
-                    c["post_id"] = pid
-                all_comments.extend(cs)
-            except MoltbookError as e:
-                print(f"  skip comments for post {pid}: {e}")
-            # checkpoint every 500 posts so a long crawl is survivable
-            if (i + 1) % 500 == 0:
-                save_json("comments", all_comments)
-                print(f"  checkpoint: {i + 1}/{len(all_posts)} posts processed, "
-                      f"{len(all_comments)} comments collected")
-
-        save_json("comments", all_comments)
-        save_csv(
-            "comments",
-            all_comments,
-            fieldnames=[
-                "id", "post_id", "parent_id", "author_id", "author_name",
-                "content", "created_at", "score",
-            ],
-        )
+        all_comments = fetch_comments_incremental(all_posts)
 
     # 4. Network edge lists --------------------------------------------------
     if build_edges:
@@ -505,16 +714,10 @@ def run(submolts=None, max_posts_per_feed=300, fetch_comments_for_posts=True,
 
 
 if __name__ == "__main__":
-    # Full crawl: top 50 submolts, no per-feed cap (every available post),
-    # and every comment on every post. Posts and comments are checkpointed
-    # to disk during the crawl, so a crash will not lose previous progress.
-    #
-    # Expect this to take a while (hours, depending on platform activity).
-    # Reduce `auto_discover_top_n` or set `max_posts_per_feed` to test.
     run(
         submolts=None,
-        auto_discover_top_n=50,
-        max_posts_per_feed=None,       # no cap; pagination runs until exhausted
+        auto_discover_top_n=200,
+        max_posts_per_feed=300,
         fetch_comments_for_posts=True,
         build_edges=True,
     )
