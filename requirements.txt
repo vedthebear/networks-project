@@ -5,3 +5,6 @@ networkx
 matplotlib
 scipy
 numpy
+seaborn
+scikit-learn
+tqdm
