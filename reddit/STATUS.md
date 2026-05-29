@@ -13,16 +13,17 @@
 | Setup | File structure, graph_builder.py, requirements.txt | ✅ Complete |
 | RQ1 | Broadcast vs. viral diffusion mode | ✅ Complete — viral, but degree-explained (null not beaten) |
 | ~~RQ2~~ | ~~Relay/gatekeeper node identification~~ | ❌ Retired — RQ1 showed diffusion is degree-explained (see Decision Points) |
-| RQ3 | Sender/receiver role asymmetry + sentiment-stratified roles | ⏳ Not Started |
+| ~~RQ3~~ | ~~Sender/receiver role asymmetry~~ | ⏸ Parked → Future Interests (sentiment angle not comparison-valid; rest likely degree-explained) |
 | RQ4 | Global position vs. local clustering | ⏳ Not Started (**next**) |
-| RQ5 | Reciprocity prediction *(depends on RQ3, RQ4)* | ⏳ Not Started |
+| RQ5 | Reciprocity prediction *(depends on RQ4; computes origin score directly)* | ⏳ Not Started |
 
 ---
 
 ## Decision Points
 
 - [x] **RQ1 → RQ2 gate (RESOLVED — RQ2 retired):** RQ1 Method 1 found viral-dominant diffusion (median width₁ = 1, median depth = 10–12). Method 2's configuration-model null (500 graphs) then showed this viral shape is **not statistically distinguishable from a degree-matched random graph** (all p > 0.27, none near significance). Because the diffusion structure is fully degree-explained, a node-level diffusion-position analysis (gatekeeper *or* relay) has no statistical footing. **RQ2 is retired.** The project re-anchors on RQ3 (sentiment-stratified roles), RQ4 (clustering hierarchy), RQ5 (reciprocity) — features the degree null cannot reproduce. See `docs/rq1/README.md` and `research.md`.
-- [ ] **RQ3+4 → RQ5 gate:** RQ5 logistic regression requires k-core numbers (now from **RQ4**) and origin scores (from RQ3). Do not begin RQ5 until both CSVs are confirmed present.
+- [ ] **RQ4 → RQ5 gate:** RQ5 logistic regression requires k-core numbers (now from **RQ4**). Origin scores are computed directly inside RQ5 (RQ3 parked). Do not begin RQ5 until the RQ4 k-core CSV is confirmed present.
+- [x] **NLP comparison boundary:** Moltbook has no sentiment/NLP data, so no comparative claim may use it. RQ3's sentiment-stratified plan is therefore parked, and RQ4's "sentiment by core shell" + RQ5's "positive-sentiment fraction" predictor are flagged for review (to be discussed next).
 
 ---
 
@@ -60,15 +61,8 @@
 ### ~~RQ2 — Relay / Gatekeeper Node Identification~~ — RETIRED
 RQ2 was contingent on RQ1. RQ1 Method 2 showed the diffusion structure is fully degree-explained, so any node-level diffusion-position analysis (gatekeeper or relay) lacks statistical footing. **Retired — see `research.md` and `docs/rq1/README.md`.** No code was written. The k-core input RQ5 needs is now produced by RQ4.
 
-### RQ3 — Sender/Receiver Roles
-- [ ] Fan-out ratio (origin score) per node
-- [ ] HITS hub/authority scores
-- [ ] Null model variance test *(pre-registered: may be degree-explained, like RQ1 — report honestly)*
-- [ ] **Sentiment-stratified role consistency** (origin score in `pos_weighted` vs. `neg_weighted`) — the degree null cannot trivialize this; RQ3's primary contribution
-- [ ] Role binning and structural comparison
-- [ ] Save per-node metrics → `data/processed/metrics/rq3_role_metrics.csv`
-- [ ] Figures → `figures/rq3/`
-- [ ] Documentation → `docs/rq3/README.md`
+### ~~RQ3 — Sender/Receiver Roles~~ — PARKED → Future Interests
+Parked because its only null-beatable angle (sentiment-stratified role consistency) depends on NLP/sentiment data Moltbook lacks, and the remaining role-magnitude test is expected to be degree-explained (like RQ1). See research.md "RQ3 — PARKED" banner. A sentiment-free revival would pivot to **directed role assortativity** (net-senders → net-receivers vs. config null). No code written.
 
 ### RQ4 — Core-Periphery
 - [ ] Local clustering coefficient
@@ -78,7 +72,7 @@ RQ2 was contingent on RQ1. RQ1 Method 2 showed the diffusion structure is fully 
 - [ ] Figures → `figures/rq4/`
 - [ ] Documentation → `docs/rq4/README.md`
 
-### RQ5 — Reciprocity *(start only after RQ3 + RQ4 metrics confirmed)*
+### RQ5 — Reciprocity *(start only after RQ4 k-core CSV confirmed; origin score computed inside RQ5)*
 - [ ] Global and per-node reciprocity
 - [ ] Logistic regression on `is_reciprocated`
 - [ ] Timestamp gap analysis
@@ -100,10 +94,18 @@ RQ2 was contingent on RQ1. RQ1 Method 2 showed the diffusion structure is fully 
 | 2026-05-28 | RQ1 Method 1 documentation | `reddit/docs/rq1/README.md` |
 | 2026-05-28 | RQ1 Method 2: config-model null (500 graphs, 3M sims), permutation test, 4 figures; finding: viral shape is degree-explained (null not beaten, all p > 0.27) | `reddit/rq1_null_model.py`, `reddit/figures/rq1/`, `reddit/data/processed/metrics/rq1_null_ensemble.csv`, `rq1_permutation_test.csv` |
 | 2026-05-28 | RQ1 Method 2 documentation appended | `reddit/docs/rq1/README.md` |
-| 2026-05-28 | Retired RQ2; reframed research.md from a thesis to research-questions; modified RQ3 (sentiment-stratified roles); rerouted RQ5 k-core dependency to RQ4 | `reddit/research.md`, `reddit/CLAUDE.md`, `reddit/STATUS.md` |
+| 2026-05-28 | Retired RQ2; reframed research.md from a thesis to research-questions; rerouted RQ5 k-core dependency to RQ4 | `reddit/research.md`, `reddit/CLAUDE.md`, `reddit/STATUS.md` |
+| 2026-05-28 | Added NLP comparison-boundary rule (no sentiment in cross-platform claims); parked RQ3 → Future Interests | `reddit/research.md`, `reddit/CLAUDE.md`, `reddit/STATUS.md` |
+
+---
+
+## Future Interests (Parked)
+
+- **RQ3 — Sender/receiver roles.** Parked: sentiment-stratified angle isn't comparison-valid (no Moltbook sentiment data), and the role-magnitude test is likely degree-explained. Sentiment-free revival path: **directed role assortativity** (net-senders → net-receivers vs. configuration-model null) — comparison-valid and null-beatable.
 
 ---
 
 ## Blocked / Needs Attention
 
-*Nothing currently blocked. RQ4 (core-periphery) is the immediate next step — it also produces the k-core CSV that RQ5 depends on.*
+- **RQ4 / RQ5 sentiment pieces — pending discussion.** RQ4's "sentiment by core shell" and RQ5's "fraction of positive-sentiment links" predictor depend on NLP data and violate the comparison boundary. Decision deferred to the next working session (to be discussed before implementing RQ4).
+- Otherwise nothing blocked. RQ4 (core-periphery) is the immediate next step — it also produces the k-core CSV RQ5 depends on.

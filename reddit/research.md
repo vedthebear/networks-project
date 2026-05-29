@@ -10,6 +10,9 @@ The original framing of this project predicted **broadcast-dominant diffusion** 
 
 Every quantitative claim is tested against a null model (what we'd expect by chance given the degree sequence), so that findings are inferences, not just observed patterns.
 
+### Comparison Boundary — No NLP / Sentiment Features
+This is a **Reddit vs. Moltbook comparison**, and Moltbook lacks the NLP-rich sentiment data Reddit's SNAP corpus provides. **No cross-platform comparative claim may depend on sentiment or any NLP-derived feature** (`LINK_SENTIMENT`, the positive/negative subgraphs, etc.). Sentiment-based analysis is allowed only as a clearly-labeled, Reddit-only descriptive aside — never as a load-bearing comparison result. Every comparative method must be runnable on both platforms' data.
+
 ---
 
 ## Data Infrastructure
@@ -121,7 +124,13 @@ Retiring RQ2 is the honest consequence of the RQ1 finding, not a gap. The projec
 
 ---
 
-## Research Question 3: Are Sender and Receiver Roles Structurally Determined?
+## Research Question 3: ~~Are Sender and Receiver Roles Structurally Determined?~~ — PARKED (Future Interests)
+
+> **⏸ Parked.** RQ3's strongest planned angle was **sentiment-stratified role consistency**, but that depends on NLP/sentiment data Moltbook does not have, so it violates the **Comparison Boundary** above and cannot carry a cross-platform claim. The remaining sentiment-free part — basic role-asymmetry magnitude — is expected to be degree-explained (the origin score is largely a function of the degree/strength marginals the null preserves), just as RQ1's cascade shape was. RQ3 is therefore moved to **Future Interests** rather than the active pipeline (RQ1 → RQ4 → RQ5).
+>
+> **If revived without sentiment:** the comparison-valid, null-beatable reframe is **directed role assortativity** — do net-*senders* preferentially link to net-*receivers* more than the configuration model predicts? The null preserves in/out degree but randomizes who-links-to-whom, so a sender→receiver flow hierarchy is exactly what it would destroy. This needs only directed edges + weights, so it runs on both platforms.
+>
+> The method notes below are retained as a reference for any future revival.
 
 ### The Question
 Do subreddits occupy persistent asymmetric roles as net senders or net receivers of cross-community links? Is this asymmetry more pronounced than a random network would produce?
@@ -146,22 +155,14 @@ Computed iteratively via the adjacency matrix until convergence. Complements fan
 #### Null Model Test for Role Asymmetry — with a pre-registered caveat
 See the Null Model Methodology section. For RQ3: we compute origin scores for every node in 500+ configuration model graphs and record the variance of those scores in each random graph. This builds a null distribution of "how spread-out are sender/receiver roles in a random network with Reddit's degree sequence?"
 
-If Reddit's real origin score variance is significantly higher than the null, role assignment is a structural property beyond degree. **However, we pre-register the expectation that this test may come back null — for the same reason RQ1 did.** The origin score, `out_weight / (out_weight + in_weight)`, is largely a function of the in/out-degree (and strength) marginals that the configuration model *preserves*. So basic role asymmetry may be degree-explained, just as cascade shape was. We report this test honestly either way: a null result here is itself a finding, consistent with RQ1, that role *magnitude* is degree-driven.
-
-#### Sentiment-Stratified Role Consistency (primary contribution)
-This is the angle the degree-preserving null **cannot** trivialize, because that null ignores sentiment entirely. Using the `pos_weighted` and `neg_weighted` subgraphs (already built by `graph_builder.py`), we compute each node's origin score separately within positive-sentiment links and within negative-sentiment links, then test whether a subreddit's sender/receiver role **persists or flips with sentiment**:
-
-- Do communities that are net *senders* of positive links remain senders when linking negatively, or do roles reorganize by sentiment?
-- Is role-by-sentiment consistency itself structured (e.g., correlated with k-core or clustering)?
-
-Because the degree null carries no sentiment information, any systematic role-by-sentiment structure is a genuine, non-degree feature of Reddit — making this the part of RQ3 most likely to yield an inferential finding. We quantify consistency (e.g., correlation between positive-subgraph and negative-subgraph origin scores) and, where a structural statistic is computed, compare against the configuration-model null per project convention.
+If Reddit's real origin score variance is significantly higher than the null, role assignment is a structural property beyond degree. **However, we pre-register the expectation that this test may come back null — for the same reason RQ1 did.** The origin score, `out_weight / (out_weight + in_weight)`, is largely a function of the in/out-degree (and strength) marginals that the configuration model *preserves*. So basic role asymmetry may be degree-explained, just as cascade shape was. This expectation is the main reason RQ3 is parked: its one null-beatable angle (sentiment-stratified roles) is not comparison-valid, and a sentiment-free revival would pivot to **directed role assortativity** (see the parked banner above).
 
 #### Structural Properties by Role
 Bin into sender (>0.7), balanced (0.3–0.7), receiver (<0.3). Compare k-core, clustering coefficient, and PageRank distributions across bins to test whether role is structurally determined.
 
-### Data Needed
-- `weighted` DiGraph (built); `pos_weighted` and `neg_weighted` subgraphs (built)
-- **Build:** Fan-out ratio per node, HITS, null model variance test (pre-registered caveat), sentiment-stratified role consistency, role binning and comparison
+### Data Needed *(if revived)*
+- `weighted` DiGraph (built)
+- **Build:** Fan-out ratio per node, HITS, null model variance test (pre-registered caveat), directed role assortativity vs. null. *(The sentiment-stratified component is dropped — not comparison-valid per the Comparison Boundary.)*
 
 ---
 
@@ -249,15 +250,17 @@ RQ1: Asks where Reddit falls on the broadcast–viral spectrum, and whether the 
   ↓
   RQ1 redirects the project: look for structure where a degree-preserving null CAN be beaten.
   ↓
-RQ3: Are sender/receiver roles structural? Tests role-magnitude vs. degree null (may be degree-explained,
-     pre-registered), and — the part the degree null cannot trivialize — sentiment-stratified role consistency.
-  ↓
 RQ4: Does global position predict local behavior? K-core ↔ clustering anti-correlation and rich-club —
      features the configuration model does NOT preserve, so the strongest candidates for a non-random finding.
      (Produces k-core numbers reused by RQ5.)
   ↓
 RQ5: Do structural features predict reciprocal linking over time? Logistic regression on reciprocity
-     (using RQ4 k-core + RQ3 origin scores) + timestamp-gap analysis.
+     (using RQ4 k-core + an origin score RQ5 computes directly) + timestamp-gap analysis.
+
+[Parked → Future Interests]
+RQ3: Are sender/receiver roles structural? Its one null-beatable angle (sentiment-stratified roles) is
+     not comparison-valid (Moltbook has no sentiment data); the rest is likely degree-explained.
+     A sentiment-free revival would pivot to directed role assortativity.
 ```
 
-The synthesis is written from these results. The through-line under test — does structural position determine role/behavior beyond degree? — is supported only where the evidence beats the null; RQ1 shows it does *not* for diffusion shape, and RQ3–RQ5 test where it might.
+The synthesis is written from these results. The through-line under test — does structural position determine role/behavior beyond degree? — is supported only where the evidence beats the null; RQ1 shows it does *not* for diffusion shape, and RQ4–RQ5 test where it might.
