@@ -1,8 +1,8 @@
 # Project Status — Networks Project (Reddit Side)
 
 **Last Updated:** 2026-05-28  
-**Current Focus:** RQ1 fully complete (both methods); RQ2 retired; RQ4 is next  
-**Next Action:** Plan and implement RQ4 — k-core vs. clustering (Spearman), rich-club, sentiment-by-shell. Produces the k-core CSV that RQ5 needs.
+**Current Focus:** RQ1 ✅, RQ4 ✅; RQ2 retired, RQ3 parked; RQ5 is next  
+**Next Action:** Plan and implement RQ5 — reciprocity + logistic regression (consumes RQ4 k-core CSV; computes origin score directly) + timestamp gap. First resolve the flagged RQ5 sentiment predictor.
 
 ---
 
@@ -14,15 +14,15 @@
 | RQ1 | Broadcast vs. viral diffusion mode | ✅ Complete — viral, but degree-explained (null not beaten) |
 | ~~RQ2~~ | ~~Relay/gatekeeper node identification~~ | ❌ Retired — RQ1 showed diffusion is degree-explained (see Decision Points) |
 | ~~RQ3~~ | ~~Sender/receiver role asymmetry~~ | ⏸ Parked → Future Interests (sentiment angle not comparison-valid; rest likely degree-explained) |
-| RQ4 | Global position vs. local clustering | ⏳ Not Started (**next**) |
-| RQ5 | Reciprocity prediction *(depends on RQ4; computes origin score directly)* | ⏳ Not Started |
+| RQ4 | Global position vs. local clustering | ✅ Complete — clustering 5× null; within-core bridging (ρ=−0.15); modest rich club |
+| RQ5 | Reciprocity prediction *(depends on RQ4; computes origin score directly)* | ⏳ Not Started (**next**) |
 
 ---
 
 ## Decision Points
 
 - [x] **RQ1 → RQ2 gate (RESOLVED — RQ2 retired):** RQ1 Method 1 found viral-dominant diffusion (median width₁ = 1, median depth = 10–12). Method 2's configuration-model null (500 graphs) then showed this viral shape is **not statistically distinguishable from a degree-matched random graph** (all p > 0.27, none near significance). Because the diffusion structure is fully degree-explained, a node-level diffusion-position analysis (gatekeeper *or* relay) has no statistical footing. **RQ2 is retired.** The project re-anchors on RQ3 (sentiment-stratified roles), RQ4 (clustering hierarchy), RQ5 (reciprocity) — features the degree null cannot reproduce. See `docs/rq1/README.md` and `research.md`.
-- [ ] **RQ4 → RQ5 gate:** RQ5 logistic regression requires k-core numbers (now from **RQ4**). Origin scores are computed directly inside RQ5 (RQ3 parked). Do not begin RQ5 until the RQ4 k-core CSV is confirmed present.
+- [x] **RQ4 → RQ5 gate (RESOLVED):** RQ4 is complete and `rq4_node_metrics.csv` (per-node k-core) is present — the RQ5 dependency is satisfied. Origin scores are computed directly inside RQ5 (RQ3 parked). RQ5 may proceed.
 - [x] **NLP comparison boundary:** Moltbook has no sentiment/NLP data, so no comparative claim may use it. RQ3's sentiment-stratified plan is parked; RQ4's "sentiment by core shell" is **removed**. RQ5's "positive-sentiment fraction" predictor is still flagged for review (to be discussed before RQ5).
 
 ---
@@ -64,13 +64,15 @@ RQ2 was contingent on RQ1. RQ1 Method 2 showed the diffusion structure is fully 
 ### ~~RQ3 — Sender/Receiver Roles~~ — PARKED → Future Interests
 Parked because its only null-beatable angle (sentiment-stratified role consistency) depends on NLP/sentiment data Moltbook lacks, and the remaining role-magnitude test is expected to be degree-explained (like RQ1). See research.md "RQ3 — PARKED" banner. A sentiment-free revival would pivot to **directed role assortativity** (net-senders → net-receivers vs. config null). No code written.
 
-### RQ4 — Core-Periphery
-- [ ] Local clustering coefficient
-- [ ] Spearman correlation (k-core vs. clustering)
-- [ ] Rich-club coefficient
-- [ ] K-core number per node → `data/processed/metrics/` (reused by RQ5)
-- [ ] Figures → `figures/rq4/`
-- [ ] Documentation → `docs/rq4/README.md`
+### RQ4 — Core-Periphery ✅ COMPLETE
+- [x] Local clustering coefficient (unweighted primary + weighted robustness)
+- [x] Spearman correlation (k-core vs. clustering) — full ρ=+0.78 (mechanical); within-core (k≥2) ρ=−0.15 (bridging)
+- [x] Rich-club coefficient — modest, beats null band at 370/718 k; vanishes at extreme top
+- [x] 500-graph config-model null + permutation tests — clustering 5.3× null (p<0.002); ρ beats null (p<0.002)
+- [x] K-core number per node → `data/processed/metrics/rq4_node_metrics.csv` (**RQ5 dependency — present**)
+- [x] 4 figures → `figures/rq4/`
+- [x] Metric CSVs → `rq4_global_stats.csv`, `rq4_richclub_curve.csv`, `rq4_null_distribution.csv`
+- [x] Documentation (full report + analysis + commentary) → `docs/rq4/README.md`
 - [x] ~~Sentiment by core shell~~ — REMOVED (NLP not comparison-valid; see Comparison Boundary in research.md)
 
 ### RQ5 — Reciprocity *(start only after RQ4 k-core CSV confirmed; origin score computed inside RQ5)*
@@ -98,6 +100,8 @@ Parked because its only null-beatable angle (sentiment-stratified role consisten
 | 2026-05-28 | Retired RQ2; reframed research.md from a thesis to research-questions; rerouted RQ5 k-core dependency to RQ4 | `reddit/research.md`, `reddit/CLAUDE.md`, `reddit/STATUS.md` |
 | 2026-05-28 | Added NLP comparison-boundary rule (no sentiment in cross-platform claims); parked RQ3 → Future Interests | `reddit/research.md`, `reddit/CLAUDE.md`, `reddit/STATUS.md` |
 | 2026-05-28 | Removed "sentiment by core shell" from RQ4 (NLP not comparison-valid); RQ4 now fully structural | `reddit/research.md`, `reddit/STATUS.md` |
+| 2026-05-28 | RQ4 complete: k-core + clustering + Spearman + rich-club, 500-graph null, 4 figures, 4 CSVs. Findings: clustering 5.3× null (p<0.002); aggregate ρ=+0.78 mostly mechanical but beats null; within-core ρ=−0.15 (bridging); modest rich club | `reddit/rq4_core_periphery.py`, `reddit/figures/rq4/`, `reddit/data/processed/metrics/rq4_*.csv` |
+| 2026-05-28 | RQ4 documentation (full report + analysis + commentary on all results) | `reddit/docs/rq4/README.md` |
 
 ---
 
