@@ -6,7 +6,7 @@ This project is **a set of questions we are deriving answers for, not a thesis w
 
 The investigation is loosely organized around one through-line we are *interested in testing* (not assuming): **does a subreddit's structural position in the hyperlink network determine the role it plays in information flow, beyond what its raw activity level (degree) would predict?** Each research question contributes evidence for or against this, and the synthesis is written from the results.
 
-The original framing of this project predicted **broadcast-dominant diffusion** — that information spreads through a few structurally-determined gateway hubs rather than peer-to-peer chains. We treat that prediction as the open question **RQ1 set out to answer**, not as a settled claim. As it turns out (see RQ1 below and `docs/rq1/`), the evidence **disproves** it: diffusion is viral in shape, and that shape is fully explained by the degree distribution. That is a valid finding. It also redirects the rest of the project toward the structural features where a degree-preserving null model *can* be beaten — local clustering hierarchy (RQ4), reciprocity (RQ5), and sentiment-stratified roles (RQ3).
+The original framing of this project predicted **broadcast-dominant diffusion** — that information spreads through a few structurally-determined gateway hubs rather than peer-to-peer chains. We treat that prediction as the open question **RQ1 set out to answer**, not as a settled claim. As it turns out (see RQ1 below and `docs/rq1/`), the evidence **disproves** it: diffusion is viral in shape, and that shape is fully explained by the degree distribution. That is a valid finding. It also redirects the rest of the project toward the structural features where a degree-preserving null model *can* be beaten — local clustering hierarchy (RQ4) and reciprocity (RQ5). (RQ3, on sender/receiver roles, is parked — see its section.)
 
 Every quantitative claim is tested against a null model (what we'd expect by chance given the degree sequence), so that findings are inferences, not just observed patterns.
 
@@ -118,7 +118,7 @@ See the Null Model Methodology section above for the full explanation. For RQ1 s
 
 RQ1 Method 2 invalidates **both** framings. The configuration-model null showed that Reddit's cascade structure is **fully explained by its degree distribution** — a degree-matched random graph produces the same narrow, deep cascades. If the aggregate diffusion structure is degree-generic, then any node-level *diffusion-position* analysis (gatekeeper or relay) has no statistical footing: the positions nodes occupy in cascades are not a non-random property of Reddit's wiring, so "which node is the critical relay/hub" cannot be distinguished from chance.
 
-Retiring RQ2 is the honest consequence of the RQ1 finding, not a gap. The project re-anchors on the structural features a degree-preserving null *cannot* reproduce — local clustering hierarchy (RQ4), reciprocity (RQ5), and sentiment-stratified role structure (RQ3).
+Retiring RQ2 is the honest consequence of the RQ1 finding, not a gap. The project re-anchors on the structural features a degree-preserving null *cannot* reproduce — local clustering hierarchy (RQ4) and reciprocity (RQ5). (RQ3 on roles is parked — see its section.)
 
 **Note on the k-core dependency:** RQ5's logistic regression originally drew k-core numbers from RQ2. K-core is a pure graph statistic (`nx.core_number(UG)`) computed independently of RQ2; it is now produced in **RQ4** and reused by RQ5.
 
@@ -187,12 +187,11 @@ Spearman is used instead of Pearson because neither variable is normally distrib
 #### Rich-Club Coefficient
 Tests whether the highest-degree nodes preferentially connect to each other more than to lower-degree nodes. If Reddit's top subreddits form a rich club, it suggests a self-reinforcing core that captures and recirculates information — amplifying broadcast-style diffusion. `nx.rich_club_coefficient(UG, normalized=False)` restricted to degree ≥ 5.
 
-#### Sentiment by Core Shell
-Using `body_df`, compute mean outgoing link sentiment per k-core shell. Do core subreddits link more positively or negatively than periphery subreddits? Connects network structure to the character of information flow.
+> **Removed — Sentiment by Core Shell.** An earlier draft included a "mean outgoing sentiment per k-core shell" analysis. It depends on Reddit's NLP-derived `LINK_SENTIMENT`, which Moltbook lacks, so it violates the **Comparison Boundary** and was never comparison-eligible. It is removed from RQ4. (Could be revisited only as a clearly-labeled, non-comparable Reddit-only aside.) RQ4's structural analyses below are unaffected.
 
 ### Data Needed
-- `weighted` DiGraph (built), `body_df` (built), undirected projection
-- **Build:** Clustering computation, Spearman test, rich-club analysis, sentiment-by-shell aggregation
+- `weighted` DiGraph (built), undirected projection
+- **Build:** Clustering computation, Spearman test, rich-club analysis
 
 ---
 
