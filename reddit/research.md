@@ -1,14 +1,14 @@
 # Reddit Subreddit Diffusion — Research Plan
 
-## Central Thesis
+## Research Questions & Motivation
 
-Reddit's subreddit-level information network exhibits **broadcast-dominant diffusion**: information spreads primarily through a small set of structurally determined gateway communities rather than through peer-to-peer viral chains. This broadcast structure is non-random — it is organized by the topology of the hyperlink network itself, meaning a subreddit's structural position predicts the role it plays in information flow.
+This project is **a set of questions we are deriving answers for, not a thesis we are defending.** We do not assert an outcome up front. The final conclusion is whatever the evidence supports — and where the evidence overturns an initial expectation, that overturning is itself a legitimate result, reported plainly.
 
-This thesis has two intertwined claims:
-1. **Broadcast over viral** — the diffusion mode is identifiable and skewed toward hub-driven spread
-2. **Structural determinism** — that skew is explained by network position, not by subreddit size or topic
+The investigation is loosely organized around one through-line we are *interested in testing* (not assuming): **does a subreddit's structural position in the hyperlink network determine the role it plays in information flow, beyond what its raw activity level (degree) would predict?** Each research question contributes evidence for or against this, and the synthesis is written from the results.
 
-Both claims are tested against null models (what we'd expect by chance) so that findings are hypotheses confirmed, not just patterns observed.
+The original framing of this project predicted **broadcast-dominant diffusion** — that information spreads through a few structurally-determined gateway hubs rather than peer-to-peer chains. We treat that prediction as the open question **RQ1 set out to answer**, not as a settled claim. As it turns out (see RQ1 below and `docs/rq1/`), the evidence **disproves** it: diffusion is viral in shape, and that shape is fully explained by the degree distribution. That is a valid finding. It also redirects the rest of the project toward the structural features where a degree-preserving null model *can* be beaten — local clustering hierarchy (RQ4), reciprocity (RQ5), and sentiment-stratified roles (RQ3).
+
+Every quantitative claim is tested against a null model (what we'd expect by chance given the degree sequence), so that findings are inferences, not just observed patterns.
 
 ---
 
@@ -31,12 +31,12 @@ From this table, the existing code builds:
 - **Raw multigraph (`raw_multi`)** — one edge per individual hyperlink (preserves timestamps; used for temporal analysis).
 - **Positive/negative subgraphs** — weighted graph filtered by sentiment.
 
-### New File to Create
+### Analysis File Layout
 
-All research-question-specific analysis goes in: **`reddit_network_analysis.py`**
+Each research question lives in its own module: `rq1_diffusion_mode.py`, `rq1_null_model.py`, `rq3_roles.py`, `rq4_core_periphery.py`, `rq5_reciprocity.py`. Shared graph construction is in `graph_builder.py`. (See `CLAUDE.md` for the full file tree.)
 
-### New Dependencies to Add to `requirements.txt`
-- `scikit-learn` — logistic regression (RQ5)
+### Dependencies (in `requirements.txt`)
+- `scikit-learn` — logistic regression (RQ5); `seaborn`, `tqdm` — plotting/progress.
 
 ---
 
@@ -71,7 +71,7 @@ We then compare the real network's observed metric to this distribution using a 
 
 The null model runs through three of the five research questions:
 
-- **RQ1 (SIR simulation):** Is Reddit's diffusion more broadcast-dominant than a random network with the same degree sequence would produce?
+- **RQ1 (SIR simulation):** Is Reddit's diffusion shape (broadcast vs. viral) different from what a random network with the same degree sequence would produce? *(Result: no — the viral shape is degree-explained.)*
 - **RQ3 (role asymmetry):** Is the variance in sender/receiver roles across subreddits significantly higher than in random networks — meaning role assignment is non-random?
 - **RQ4 (core-periphery correlation):** Is the anti-correlation between k-core number and clustering coefficient significantly stronger in Reddit's network than in random networks of the same degree distribution?
 
@@ -80,6 +80,8 @@ In each case, the null model testing is what elevates the analysis from descript
 ---
 
 ## Research Question 1: Where Does Reddit Fall on the Broadcast-to-Viral Spectrum?
+
+> **✅ COMPLETE — Finding:** Diffusion is **viral** (median width at hop 1 = 1, median depth = 10–12 in active cascades), the opposite of the broadcast prediction. Method 2's configuration-model null shows this viral shape is **not statistically distinguishable from a degree-matched random graph** (all p > 0.27, none near significance). **Conclusion: the viral shape is real but fully explained by the degree distribution — it is not a non-random property of Reddit's wiring.** Full write-up in `docs/rq1/README.md`.
 
 ### The Question
 When information begins in one subreddit and spreads via cross-community hyperlinks, does it tend to spread directly outward from a single hub (broadcast), or does it pass through a chain of intermediate communities (viral)? Is the pattern more structured than we'd expect in a randomly wired network?
@@ -99,7 +101,7 @@ Running many simulations from many starting nodes produces a distribution of out
 Parameters β and γ are varied in sensitivity analyses to ensure findings aren't parameter-dependent.
 
 #### Configuration Model Null Comparison
-See the Null Model Methodology section above for the full explanation. For RQ1 specifically: we generate 500–1000 configuration model graphs, run the same SIR simulation on each, and build a null distribution of cascade depth and width values. The real network's values are compared to this distribution via permutation test. If Reddit's diffusion is significantly shallower and wider than the null, that is statistical evidence for broadcast-dominant structure — not merely an artifact of the network's size or degree distribution.
+See the Null Model Methodology section above for the full explanation. For RQ1 specifically: we generate 500 configuration model graphs, run the same SIR simulation on each, and build a null distribution of cascade depth and width values. The real network's values are compared to this distribution via permutation test. **Result:** Reddit's cascade depth and width fell squarely inside the null distribution at every β (all p > 0.27), so the observed viral shape is an artifact of the degree distribution, not a non-random property of Reddit's wiring. See `docs/rq1/README.md` for the full Method 2 write-up.
 
 ### Data Needed
 - `weighted` DiGraph (already built)
@@ -107,32 +109,15 @@ See the Null Model Methodology section above for the full explanation. For RQ1 s
 
 ---
 
-## Research Question 2: Which Subreddits Function as Structural Gatekeepers?
+## Research Question 2: ~~Which Subreddits Function as Structural Gatekeepers?~~ — RETIRED
 
-### Conditional Dependency on RQ1
-**This question is only meaningful if RQ1 establishes broadcast-dominant diffusion.** If RQ1 instead finds viral diffusion — information spreading through long peer-to-peer chains rather than through central hubs — the gatekeeper framing breaks down. In a viral network, no single node is the bottleneck; spread is distributed across many intermediate nodes. In that case, RQ2 would need to reframe toward identifying the most active relay nodes in long diffusion chains rather than the hubs controlling outward broadcast.
+**RQ2 has been retired.** It was always contingent on RQ1: a broadcast result would justify identifying gatekeeper *hubs*, while a viral result would have it reframed toward identifying *relay nodes* in long diffusion chains.
 
-This is a deliberate analytical fork: **run RQ1 first, observe the result, then decide whether RQ2 proceeds as written or adapts.**
+RQ1 Method 2 invalidates **both** framings. The configuration-model null showed that Reddit's cascade structure is **fully explained by its degree distribution** — a degree-matched random graph produces the same narrow, deep cascades. If the aggregate diffusion structure is degree-generic, then any node-level *diffusion-position* analysis (gatekeeper or relay) has no statistical footing: the positions nodes occupy in cascades are not a non-random property of Reddit's wiring, so "which node is the critical relay/hub" cannot be distinguished from chance.
 
-### The Question
-Assuming broadcast-dominant diffusion: which subreddits sit at the critical junctions that control information flow across the network? How do we distinguish true structural bottlenecks from communities that are simply large and active?
+Retiring RQ2 is the honest consequence of the RQ1 finding, not a gap. The project re-anchors on the structural features a degree-preserving null *cannot* reproduce — local clustering hierarchy (RQ4), reciprocity (RQ5), and sentiment-stratified role structure (RQ3).
 
-### Methods
-
-#### Betweenness Centrality (Extend Existing)
-For every pair of nodes (A, B), betweenness centrality counts what fraction of all shortest paths pass through node X. Already computed (sampled, k=500). Extension: add **edge betweenness** — which specific A→B links are the critical conduits, not just which nodes.
-
-#### K-Core Decomposition
-Assigns each node a shell number k: it belongs to the largest subgraph where every node has at least k neighbors within that subgraph. Think of it as peeling an onion — strip away low-degree nodes iteratively until only the densely interconnected core remains. Nodes at the **boundary between a high-core and low-core region** are natural structural bridges: embedded enough to receive from the dense interior, connected enough to pass information outward to the periphery. This complements betweenness by capturing embeddedness rather than path centrality. `nx.core_number(UG)`. O(E). Also computed in RQ3 and RQ4 so there is no additional cost.
-
-*Note: Articulation points (nodes whose removal disconnects the graph entirely) and max-flow/min-cut analysis were considered but cut. Articulation points produce a binary label that adds little beyond what betweenness and k-core already capture, and require losing directionality via undirected projection. Max-flow/min-cut is theoretically stronger but computationally expensive to run across many community pairs and adds implementation complexity disproportionate to the marginal insight over betweenness.*
-
-#### Composite Gatekeeper Score
-Normalize betweenness rank and k-core boundary score to [0,1] and average into a single interpretable ranking. Nodes that are both high-betweenness and on the high-to-low k-core boundary are the strongest gatekeeper candidates.
-
-### Data Needed
-- `weighted` DiGraph (built), undirected projection (one line)
-- **Build:** Edge betweenness extension, k-core decomposition, composite score
+**Note on the k-core dependency:** RQ5's logistic regression originally drew k-core numbers from RQ2. K-core is a pure graph statistic (`nx.core_number(UG)`) computed independently of RQ2; it is now produced in **RQ4** and reused by RQ5.
 
 ---
 
@@ -158,17 +143,25 @@ HITS assigns two scores per node:
 
 Computed iteratively via the adjacency matrix until convergence. Complements fan-out ratio by accounting for *who* you link to, not just volume. `nx.hits(weighted, max_iter=300)`.
 
-#### Null Model Test for Role Asymmetry
+#### Null Model Test for Role Asymmetry — with a pre-registered caveat
 See the Null Model Methodology section. For RQ3: we compute origin scores for every node in 500+ configuration model graphs and record the variance of those scores in each random graph. This builds a null distribution of "how spread-out are sender/receiver roles in a random network with Reddit's degree sequence?"
 
-If Reddit's real origin score variance is significantly higher than the null — meaning subreddits are more asymmetric than chance predicts — it tells us that role assignment is a structural property of the network, not a consequence of degree variation alone. Intuitively: even if you know which subreddits are highly active (degree), you wouldn't predict from that alone that some are exclusively senders while others are exclusively receivers. Structural position, beyond just activity level, is determining role.
+If Reddit's real origin score variance is significantly higher than the null, role assignment is a structural property beyond degree. **However, we pre-register the expectation that this test may come back null — for the same reason RQ1 did.** The origin score, `out_weight / (out_weight + in_weight)`, is largely a function of the in/out-degree (and strength) marginals that the configuration model *preserves*. So basic role asymmetry may be degree-explained, just as cascade shape was. We report this test honestly either way: a null result here is itself a finding, consistent with RQ1, that role *magnitude* is degree-driven.
+
+#### Sentiment-Stratified Role Consistency (primary contribution)
+This is the angle the degree-preserving null **cannot** trivialize, because that null ignores sentiment entirely. Using the `pos_weighted` and `neg_weighted` subgraphs (already built by `graph_builder.py`), we compute each node's origin score separately within positive-sentiment links and within negative-sentiment links, then test whether a subreddit's sender/receiver role **persists or flips with sentiment**:
+
+- Do communities that are net *senders* of positive links remain senders when linking negatively, or do roles reorganize by sentiment?
+- Is role-by-sentiment consistency itself structured (e.g., correlated with k-core or clustering)?
+
+Because the degree null carries no sentiment information, any systematic role-by-sentiment structure is a genuine, non-degree feature of Reddit — making this the part of RQ3 most likely to yield an inferential finding. We quantify consistency (e.g., correlation between positive-subgraph and negative-subgraph origin scores) and, where a structural statistic is computed, compare against the configuration-model null per project convention.
 
 #### Structural Properties by Role
 Bin into sender (>0.7), balanced (0.3–0.7), receiver (<0.3). Compare k-core, clustering coefficient, and PageRank distributions across bins to test whether role is structurally determined.
 
 ### Data Needed
-- `weighted` DiGraph (built)
-- **Build:** Fan-out ratio per node, HITS, null model variance test, role binning and comparison
+- `weighted` DiGraph (built); `pos_weighted` and `neg_weighted` subgraphs (built)
+- **Build:** Fan-out ratio per node, HITS, null model variance test (pre-registered caveat), sentiment-stratified role consistency, role binning and comparison
 
 ---
 
@@ -245,19 +238,26 @@ Positive gap = A→B came first. Negative gap = B→A came first. Distribution s
 
 ---
 
-## How the Questions Build Toward the Thesis
+## How the Questions Connect
 
 ```
-RQ1: Establishes the diffusion mode (broadcast vs. viral) and confirms it is non-random
+RQ1: Asks where Reddit falls on the broadcast–viral spectrum, and whether the pattern is non-random.
+     FINDING: viral in shape, but the shape is fully degree-explained (null model not beaten).
   ↓
-  [DECISION POINT: if broadcast → proceed to RQ2 as written]
-  [DECISION POINT: if viral → reframe RQ2 toward relay node identification in long chains]
+  [RESOLVED FORK: a degree-explained diffusion structure means node-level diffusion-position
+   analysis has no statistical footing → RQ2 (gatekeeper/relay) RETIRED.]
   ↓
-RQ2: Identifies which communities drive the broadcast structure — the gatekeeper mechanism
+  RQ1 redirects the project: look for structure where a degree-preserving null CAN be beaten.
   ↓
-RQ3: Shows sender/receiver roles are structurally determined — explains why gatekeepers emerge
+RQ3: Are sender/receiver roles structural? Tests role-magnitude vs. degree null (may be degree-explained,
+     pre-registered), and — the part the degree null cannot trivialize — sentiment-stratified role consistency.
   ↓
-RQ4: Shows global structural position predicts local behavior — generalizes structural determinism
+RQ4: Does global position predict local behavior? K-core ↔ clustering anti-correlation and rich-club —
+     features the configuration model does NOT preserve, so the strongest candidates for a non-random finding.
+     (Produces k-core numbers reused by RQ5.)
   ↓
-RQ5: Tests whether the static structure has dynamic consequences for how relationships form over time
+RQ5: Do structural features predict reciprocal linking over time? Logistic regression on reciprocity
+     (using RQ4 k-core + RQ3 origin scores) + timestamp-gap analysis.
 ```
+
+The synthesis is written from these results. The through-line under test — does structural position determine role/behavior beyond degree? — is supported only where the evidence beats the null; RQ1 shows it does *not* for diffusion shape, and RQ3–RQ5 test where it might.
