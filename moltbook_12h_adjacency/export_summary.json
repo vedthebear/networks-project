@@ -1,0 +1,31 @@
+{
+  "bins": 11,
+  "end": "",
+  "exclude_capped": false,
+  "networks": {
+    "attention": {
+      "edge_entries": 11058,
+      "end": "2026-05-28T19:32:25.574000+00:00",
+      "files_written": 100,
+      "nonempty_files": 100,
+      "start": "2026-02-02T07:27:22.982000+00:00"
+    },
+    "chain": {
+      "edge_entries": 17533,
+      "end": "2026-05-28T19:32:25.574000+00:00",
+      "files_written": 100,
+      "nonempty_files": 100,
+      "start": "2026-02-02T07:27:22.982000+00:00"
+    },
+    "direct": {
+      "edge_entries": 14276,
+      "end": "2026-05-28T19:32:25.574000+00:00",
+      "files_written": 100,
+      "nonempty_files": 100,
+      "start": "2026-02-02T07:27:22.982000+00:00"
+    }
+  },
+  "node_label": "key",
+  "out_dir": "reports\\moltbook_12h_adjacency",
+  "start": ""
+}

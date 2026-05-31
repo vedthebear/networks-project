@@ -1,0 +1,574 @@
+{
+  "moltbook": {
+    "moltbook_direct": {
+      "snapshots": 1100,
+      "nonempty_snapshots": 289,
+      "all": {
+        "nodes": {
+          "sum": 3923,
+          "mean": 3.5663636363636364,
+          "median": 0.0,
+          "p75": 2.0,
+          "p90": 11.0,
+          "p95": 21.0,
+          "max": 90
+        },
+        "unique_edges": {
+          "sum": 5715,
+          "mean": 5.195454545454545,
+          "median": 0.0,
+          "p75": 1.0,
+          "p90": 13.0,
+          "p95": 30.049999999999955,
+          "max": 176
+        },
+        "edge_entries": {
+          "sum": 5715,
+          "mean": 5.195454545454545,
+          "median": 0.0,
+          "p75": 1.0,
+          "p90": 13.0,
+          "p95": 30.049999999999955,
+          "max": 176
+        },
+        "self_loops": {
+          "sum": 213,
+          "mean": 0.19363636363636363,
+          "median": 0.0,
+          "p75": 0.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "max": 6
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.055361281000700646,
+          "median": 0.0,
+          "p75": 0.03121237000547345,
+          "p90": 0.2,
+          "p95": 0.3333333333333333,
+          "max": 1.0
+        }
+      },
+      "nonempty": {
+        "nodes": {
+          "sum": 3923,
+          "mean": 13.57439446366782,
+          "median": 8,
+          "p75": 16,
+          "p90": 31.399999999999977,
+          "p95": 47.599999999999966,
+          "max": 90
+        },
+        "unique_edges": {
+          "sum": 5715,
+          "mean": 19.775086505190313,
+          "median": 9,
+          "p75": 23,
+          "p90": 49.0,
+          "p95": 83.19999999999993,
+          "max": 176
+        },
+        "edge_entries": {
+          "sum": 5715,
+          "mean": 19.775086505190313,
+          "median": 9,
+          "p75": 23,
+          "p90": 49.0,
+          "p95": 83.19999999999993,
+          "max": 176
+        },
+        "self_loops": {
+          "sum": 213,
+          "mean": 0.7370242214532872,
+          "median": 0,
+          "p75": 1,
+          "p90": 2.0,
+          "p95": 3.0,
+          "max": 6
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.21071767854937962,
+          "median": 0.1388888888888889,
+          "p75": 0.3333333333333333,
+          "p90": 0.5,
+          "p95": 0.5,
+          "max": 1.0
+        }
+      }
+    },
+    "moltbook_chain": {
+      "snapshots": 1100,
+      "nonempty_snapshots": 289,
+      "all": {
+        "nodes": {
+          "sum": 3924,
+          "mean": 3.5672727272727274,
+          "median": 0.0,
+          "p75": 2.0,
+          "p90": 11.0,
+          "p95": 21.0,
+          "max": 90
+        },
+        "unique_edges": {
+          "sum": 6282,
+          "mean": 5.710909090909091,
+          "median": 0.0,
+          "p75": 1.0,
+          "p90": 14.0,
+          "p95": 32.049999999999955,
+          "max": 210
+        },
+        "edge_entries": {
+          "sum": 6282,
+          "mean": 5.710909090909091,
+          "median": 0.0,
+          "p75": 1.0,
+          "p90": 14.0,
+          "p95": 32.049999999999955,
+          "max": 210
+        },
+        "self_loops": {
+          "sum": 576,
+          "mean": 0.5236363636363637,
+          "median": 0.0,
+          "p75": 0.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "max": 20
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.056174711144951144,
+          "median": 0.0,
+          "p75": 0.03144283121597096,
+          "p90": 0.18363636363636404,
+          "p95": 0.35,
+          "max": 1.0
+        }
+      },
+      "nonempty": {
+        "nodes": {
+          "sum": 3924,
+          "mean": 13.577854671280276,
+          "median": 8,
+          "p75": 16,
+          "p90": 31.399999999999977,
+          "p95": 47.599999999999966,
+          "max": 90
+        },
+        "unique_edges": {
+          "sum": 6282,
+          "mean": 21.737024221453286,
+          "median": 9,
+          "p75": 24,
+          "p90": 54.19999999999999,
+          "p95": 91.59999999999997,
+          "max": 210
+        },
+        "edge_entries": {
+          "sum": 6282,
+          "mean": 21.737024221453286,
+          "median": 9,
+          "p75": 24,
+          "p90": 54.19999999999999,
+          "p95": 91.59999999999997,
+          "max": 210
+        },
+        "self_loops": {
+          "sum": 576,
+          "mean": 1.9930795847750864,
+          "median": 1,
+          "p75": 2,
+          "p90": 5.0,
+          "p95": 8.0,
+          "max": 20
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.21381377944445074,
+          "median": 0.14285714285714285,
+          "p75": 0.3333333333333333,
+          "p90": 0.5,
+          "p95": 0.5,
+          "max": 1.0
+        }
+      }
+    },
+    "moltbook_attention": {
+      "snapshots": 1100,
+      "nonempty_snapshots": 288,
+      "all": {
+        "nodes": {
+          "sum": 3799,
+          "mean": 3.4536363636363636,
+          "median": 0.0,
+          "p75": 2.0,
+          "p90": 11.0,
+          "p95": 20.0,
+          "max": 89
+        },
+        "unique_edges": {
+          "sum": 4319,
+          "mean": 3.9263636363636363,
+          "median": 0.0,
+          "p75": 1.0,
+          "p90": 10.0,
+          "p95": 21.049999999999955,
+          "max": 140
+        },
+        "edge_entries": {
+          "sum": 4319,
+          "mean": 3.9263636363636363,
+          "median": 0.0,
+          "p75": 1.0,
+          "p90": 10.0,
+          "p95": 21.049999999999955,
+          "max": 140
+        },
+        "self_loops": {
+          "sum": 196,
+          "mean": 0.1781818181818182,
+          "median": 0.0,
+          "p75": 0.0,
+          "p90": 1.0,
+          "p95": 1.0,
+          "max": 6
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.04617472786107348,
+          "median": 0.0,
+          "p75": 0.023457638823492482,
+          "p90": 0.16130952380952396,
+          "p95": 0.3333333333333333,
+          "max": 0.5
+        }
+      },
+      "nonempty": {
+        "nodes": {
+          "sum": 3799,
+          "mean": 13.190972222222221,
+          "median": 8.0,
+          "p75": 16.0,
+          "p90": 30.0,
+          "p95": 47.64999999999998,
+          "max": 89
+        },
+        "unique_edges": {
+          "sum": 4319,
+          "mean": 14.996527777777779,
+          "median": 7.0,
+          "p75": 17.0,
+          "p90": 37.900000000000034,
+          "p95": 65.0,
+          "max": 140
+        },
+        "edge_entries": {
+          "sum": 4319,
+          "mean": 14.996527777777779,
+          "median": 7.0,
+          "p75": 17.0,
+          "p90": 37.900000000000034,
+          "p95": 65.0,
+          "max": 140
+        },
+        "self_loops": {
+          "sum": 196,
+          "mean": 0.6805555555555556,
+          "median": 0.0,
+          "p75": 1.0,
+          "p90": 2.0,
+          "p95": 3.0,
+          "max": 6
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.1763618078027112,
+          "median": 0.1111111111111111,
+          "p75": 0.25,
+          "p90": 0.5,
+          "p95": 0.5,
+          "max": 0.5
+        }
+      }
+    }
+  },
+  "reddit": {
+    "reddit_reply": {
+      "snapshots": 22506,
+      "nonempty_snapshots": 22506,
+      "all": {
+        "nodes": {
+          "sum": 47106733,
+          "mean": 2093.074424597885,
+          "median": 640.0,
+          "p75": 1419.75,
+          "p90": 3515.5,
+          "p95": 6405.5,
+          "max": 171234
+        },
+        "unique_edges": {
+          "sum": 136829959,
+          "mean": 6079.7102550431,
+          "median": 1323.0,
+          "p75": 3535.75,
+          "p90": 9948.0,
+          "p95": 21120.25,
+          "max": 443538
+        },
+        "edge_entries": {
+          "sum": 136829959,
+          "mean": 6079.7102550431,
+          "median": 1323.0,
+          "p75": 3535.75,
+          "p90": 9948.0,
+          "p95": 21120.25,
+          "max": 443538
+        },
+        "self_loops": {
+          "sum": 491792,
+          "mean": 21.851595130187505,
+          "median": 8.0,
+          "p75": 17.0,
+          "p90": 41.0,
+          "p95": 75.0,
+          "max": 1562
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.005302018703062067,
+          "median": 0.0031244090568262467,
+          "p75": 0.005491890781334348,
+          "p90": 0.009092800348668894,
+          "p95": 0.013230416202232524,
+          "max": 0.4921052631578947
+        }
+      },
+      "nonempty": {
+        "nodes": {
+          "sum": 47106733,
+          "mean": 2093.074424597885,
+          "median": 640.0,
+          "p75": 1419.75,
+          "p90": 3515.5,
+          "p95": 6405.5,
+          "max": 171234
+        },
+        "unique_edges": {
+          "sum": 136829959,
+          "mean": 6079.7102550431,
+          "median": 1323.0,
+          "p75": 3535.75,
+          "p90": 9948.0,
+          "p95": 21120.25,
+          "max": 443538
+        },
+        "edge_entries": {
+          "sum": 136829959,
+          "mean": 6079.7102550431,
+          "median": 1323.0,
+          "p75": 3535.75,
+          "p90": 9948.0,
+          "p95": 21120.25,
+          "max": 443538
+        },
+        "self_loops": {
+          "sum": 491792,
+          "mean": 21.851595130187505,
+          "median": 8.0,
+          "p75": 17.0,
+          "p90": 41.0,
+          "p95": 75.0,
+          "max": 1562
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.005302018703062067,
+          "median": 0.0031244090568262467,
+          "p75": 0.005491890781334348,
+          "p90": 0.009092800348668894,
+          "p95": 0.013230416202232524,
+          "max": 0.4921052631578947
+        }
+      }
+    },
+    "reddit_chain": {
+      "snapshots": 22506,
+      "nonempty_snapshots": 22506,
+      "all": {
+        "nodes": {
+          "sum": 47106733,
+          "mean": 2093.074424597885,
+          "median": 640.0,
+          "p75": 1419.75,
+          "p90": 3515.5,
+          "p95": 6405.5,
+          "max": 171234
+        },
+        "unique_edges": {
+          "sum": 211499290,
+          "mean": 9397.462454456589,
+          "median": 1862.0,
+          "p75": 5044.0,
+          "p90": 14459.0,
+          "p95": 31988.5,
+          "max": 761150
+        },
+        "edge_entries": {
+          "sum": 211499290,
+          "mean": 9397.462454456589,
+          "median": 1862.0,
+          "p75": 5044.0,
+          "p90": 14459.0,
+          "p95": 31988.5,
+          "max": 761150
+        },
+        "self_loops": {
+          "sum": 14808361,
+          "mean": 657.9739180662934,
+          "median": 218.0,
+          "p75": 487.75,
+          "p90": 1198.0,
+          "p95": 2181.5,
+          "max": 43523
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.006263839612646449,
+          "median": 0.0038161876345421267,
+          "p75": 0.0066229649124153415,
+          "p90": 0.010854448877076713,
+          "p95": 0.015871653382382996,
+          "max": 0.531578947368421
+        }
+      },
+      "nonempty": {
+        "nodes": {
+          "sum": 47106733,
+          "mean": 2093.074424597885,
+          "median": 640.0,
+          "p75": 1419.75,
+          "p90": 3515.5,
+          "p95": 6405.5,
+          "max": 171234
+        },
+        "unique_edges": {
+          "sum": 211499290,
+          "mean": 9397.462454456589,
+          "median": 1862.0,
+          "p75": 5044.0,
+          "p90": 14459.0,
+          "p95": 31988.5,
+          "max": 761150
+        },
+        "edge_entries": {
+          "sum": 211499290,
+          "mean": 9397.462454456589,
+          "median": 1862.0,
+          "p75": 5044.0,
+          "p90": 14459.0,
+          "p95": 31988.5,
+          "max": 761150
+        },
+        "self_loops": {
+          "sum": 14808361,
+          "mean": 657.9739180662934,
+          "median": 218.0,
+          "p75": 487.75,
+          "p90": 1198.0,
+          "p95": 2181.5,
+          "max": 43523
+        },
+        "density": {
+          "sum": null,
+          "mean": 0.006263839612646449,
+          "median": 0.0038161876345421267,
+          "p75": 0.0066229649124153415,
+          "p90": 0.010854448877076713,
+          "p95": 0.015871653382382996,
+          "max": 0.531578947368421
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "moltbook_direct_vs_reddit_reply": {
+      "nodes": {
+        "moltbook_nonempty_median": 8,
+        "moltbook_nonempty_mean": 13.57439446366782,
+        "reddit_median": 640.0,
+        "reddit_mean": 2093.074424597885,
+        "moltbook_median_as_reddit_percentile": 0.0,
+        "mean_ratio_moltbook_to_reddit": 0.006485385471314854,
+        "median_ratio_moltbook_to_reddit": 0.0125
+      },
+      "unique_edges": {
+        "moltbook_nonempty_median": 9,
+        "moltbook_nonempty_mean": 19.775086505190313,
+        "reddit_median": 1323.0,
+        "reddit_mean": 6079.7102550431,
+        "moltbook_median_as_reddit_percentile": 0.0,
+        "mean_ratio_moltbook_to_reddit": 0.003252636338843112,
+        "median_ratio_moltbook_to_reddit": 0.006802721088435374
+      },
+      "density": {
+        "moltbook_nonempty_median": 0.1388888888888889,
+        "moltbook_nonempty_mean": 0.21071767854937962,
+        "reddit_median": 0.0031244090568262467,
+        "reddit_mean": 0.005302018703062067,
+        "moltbook_median_as_reddit_percentile": 0.9976006398293789,
+        "mean_ratio_moltbook_to_reddit": 39.742914982115046,
+        "median_ratio_moltbook_to_reddit": 44.452850559193834
+      },
+      "self_loops": {
+        "moltbook_nonempty_median": 0,
+        "moltbook_nonempty_mean": 0.7370242214532872,
+        "reddit_median": 8.0,
+        "reddit_mean": 21.851595130187505,
+        "moltbook_median_as_reddit_percentile": 0.03221363192037679,
+        "mean_ratio_moltbook_to_reddit": 0.03372862333675147,
+        "median_ratio_moltbook_to_reddit": 0.0
+      }
+    },
+    "moltbook_chain_vs_reddit_chain": {
+      "nodes": {
+        "moltbook_nonempty_median": 8,
+        "moltbook_nonempty_mean": 13.577854671280276,
+        "reddit_median": 640.0,
+        "reddit_mean": 2093.074424597885,
+        "moltbook_median_as_reddit_percentile": 0.0,
+        "mean_ratio_moltbook_to_reddit": 0.00648703864120303,
+        "median_ratio_moltbook_to_reddit": 0.0125
+      },
+      "unique_edges": {
+        "moltbook_nonempty_median": 9,
+        "moltbook_nonempty_mean": 21.737024221453286,
+        "reddit_median": 1862.0,
+        "reddit_mean": 9397.462454456589,
+        "moltbook_median_as_reddit_percentile": 0.0,
+        "mean_ratio_moltbook_to_reddit": 0.002313073803358998,
+        "median_ratio_moltbook_to_reddit": 0.004833512352309345
+      },
+      "density": {
+        "moltbook_nonempty_median": 0.14285714285714285,
+        "moltbook_nonempty_mean": 0.21381377944445074,
+        "reddit_median": 0.0038161876345421267,
+        "reddit_mean": 0.006263839612646449,
+        "moltbook_median_as_reddit_percentile": 0.9975562072336266,
+        "mean_ratio_moltbook_to_reddit": 34.13461912606591,
+        "median_ratio_moltbook_to_reddit": 37.43451751797396
+      },
+      "self_loops": {
+        "moltbook_nonempty_median": 1,
+        "moltbook_nonempty_mean": 1.9930795847750864,
+        "reddit_median": 218.0,
+        "reddit_mean": 657.9739180662934,
+        "moltbook_median_as_reddit_percentile": 0.0,
+        "mean_ratio_moltbook_to_reddit": 0.003029116398158317,
+        "median_ratio_moltbook_to_reddit": 0.0045871559633027525
+      }
+    }
+  }
+}

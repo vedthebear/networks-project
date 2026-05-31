@@ -1,0 +1,1543 @@
+{
+  "created_at": "2026-05-28T21:00:18.754786+00:00",
+  "moltbook_actor_graph": {
+    "avg_local_clustering_lcc": 0.27058944788268313,
+    "avg_shortest_path_lcc": 3.6350047721307566,
+    "diameter_lcc": 10,
+    "directed_density": 0.0022217628955950577,
+    "directed_edges": 4837,
+    "global_transitivity_lcc": 0.059067264943756914,
+    "largest_strong_component_share": 0.3407859078590786,
+    "largest_strong_component_size": 503,
+    "largest_weak_component_share": 0.9471544715447154,
+    "largest_weak_component_size": 1398,
+    "max_core_number_lcc": 9,
+    "max_core_size_lcc": 42,
+    "nodes": 1476,
+    "path_sampled": true,
+    "reciprocity": 0.39321893735786645,
+    "self_loop_edges": 162,
+    "top_10pct_weighted_in_share": 0.7597366209022135,
+    "top_10pct_weighted_out_share": 0.7752871952927991,
+    "top_1pct_weighted_in_share": 0.30827963014850096,
+    "top_1pct_weighted_out_share": 0.452717848136733,
+    "top_5pct_weighted_in_share": 0.6236340711683945,
+    "top_5pct_weighted_out_share": 0.6737181283272625,
+    "top_in_strength": [
+      {
+        "node": "c7a8289f-3eb5-42a2-8a62-8e9ca69e734b",
+        "value": 703.0
+      },
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 547.0
+      },
+      {
+        "node": "b67b22d9-83e3-458b-a84b-f654757f4de0",
+        "value": 430.0
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 398.0
+      },
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 309.0
+      },
+      {
+        "node": "4929ae3b-7ebe-4988-ba25-674e0d7398be",
+        "value": 300.0
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 221.0
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 215.0
+      },
+      {
+        "node": "915011c5-a679-43f6-ad36-1631adf4e174",
+        "value": 200.0
+      },
+      {
+        "node": "fc65dae2-70d7-4032-b6f5-d01f903f277e",
+        "value": 192.0
+      },
+      {
+        "node": "ece4428f-e7ea-487b-bb94-4a2fd8c6ba08",
+        "value": 190.0
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 190.0
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 180.0
+      },
+      {
+        "node": "aabda6bb-1bb8-4db3-a81f-b7097ac74f4a",
+        "value": 173.0
+      },
+      {
+        "node": "a3b24074-0a2f-4031-8749-b588b73f5ffe",
+        "value": 153.0
+      },
+      {
+        "node": "68ef3970-bdb0-44fd-a84f-ccf8d58d98e1",
+        "value": 151.0
+      },
+      {
+        "node": "5eca726d-fa4b-4fbf-8835-aae03e167911",
+        "value": 149.0
+      },
+      {
+        "node": "5d74a824-4fcd-4207-86f4-afec187c09a7",
+        "value": 146.0
+      },
+      {
+        "node": "f9afe738-f2c3-4529-9a58-ed7d196d7db2",
+        "value": 143.0
+      },
+      {
+        "node": "a25b5136-b143-4c1a-9f79-ddaa986f33d9",
+        "value": 133.0
+      }
+    ],
+    "top_out_strength": [
+      {
+        "node": "07020fbe-fc97-4135-95c6-b5e92380fc5b",
+        "value": 1564.0
+      },
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 1034.0
+      },
+      {
+        "node": "042f7ce0-54ef-4c07-aedf-6ed97a2fe30b",
+        "value": 477.0
+      },
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 474.0
+      },
+      {
+        "node": "a25b5136-b143-4c1a-9f79-ddaa986f33d9",
+        "value": 450.0
+      },
+      {
+        "node": "a356c5b4-8f05-467a-9f50-286cdd70b298",
+        "value": 417.0
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 402.0
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 306.0
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 250.0
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 244.0
+      },
+      {
+        "node": "16603778-d88f-4f26-959e-d28dfd33ce2a",
+        "value": 242.0
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 183.0
+      },
+      {
+        "node": "a3b24074-0a2f-4031-8749-b588b73f5ffe",
+        "value": 173.0
+      },
+      {
+        "node": "36436542-f42e-449a-baf7-5d4c01ccc9b9",
+        "value": 124.0
+      },
+      {
+        "node": "5eca726d-fa4b-4fbf-8835-aae03e167911",
+        "value": 123.0
+      },
+      {
+        "node": "92ed7cae-6726-45ab-8066-39c9bb4a600a",
+        "value": 119.0
+      },
+      {
+        "node": "6af55218-ac95-469e-add4-9dadaca5877b",
+        "value": 116.0
+      },
+      {
+        "node": "980e0c10-2d23-43b3-a41f-5302be3a5eda",
+        "value": 103.0
+      },
+      {
+        "node": "be348be0-10bc-4867-9bb9-eb0d40fffc19",
+        "value": 98.0
+      },
+      {
+        "node": "60646012-f4fb-433e-82c3-0e2491f482cb",
+        "value": 87.0
+      }
+    ],
+    "top_pagerank": [
+      {
+        "node": "c7a8289f-3eb5-42a2-8a62-8e9ca69e734b",
+        "value": 0.09824232681787462
+      },
+      {
+        "node": "0e118b5f-7987-40e8-bbc8-db7a39d30b32",
+        "value": 0.024024729260047322
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 0.0207212466696232
+      },
+      {
+        "node": "87c61e20-d6a2-4bb7-b09a-902ec1152086",
+        "value": 0.02004664808494106
+      },
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 0.017273231814494333
+      },
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 0.013538884103856938
+      },
+      {
+        "node": "574fe716-e6fe-418a-b21c-a1a6663c247d",
+        "value": 0.012163021557824361
+      },
+      {
+        "node": "2fc823f4-bc45-4f1c-b61c-ac4719db5efe",
+        "value": 0.01209533165587463
+      },
+      {
+        "node": "d95195ec-c40c-45b5-b711-97804518a950",
+        "value": 0.01209533165587463
+      },
+      {
+        "node": "dac940c5-a963-49f7-8f9e-6b1661051af3",
+        "value": 0.011704481908483286
+      },
+      {
+        "node": "d7043a78-949e-4754-8618-ce9a84b45725",
+        "value": 0.010309285896303748
+      },
+      {
+        "node": "a3b24074-0a2f-4031-8749-b588b73f5ffe",
+        "value": 0.009549871284892528
+      },
+      {
+        "node": "bbae281e-8a10-48d0-b045-a86f58ca6bec",
+        "value": 0.009473739060593813
+      },
+      {
+        "node": "18601035-e224-4a5d-af9c-a2c2272b99cf",
+        "value": 0.008836430318930997
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 0.008796758393799757
+      },
+      {
+        "node": "9b3a42aa-2326-41dd-8478-33ee60a8f2e9",
+        "value": 0.008685728940827812
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 0.007962971828302962
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 0.006939296454931558
+      },
+      {
+        "node": "f8a80401-bdff-4c0d-bc92-076af920cc2f",
+        "value": 0.006371870288664198
+      },
+      {
+        "node": "4d51deb4-4f98-4ca7-86df-2a3e51a01319",
+        "value": 0.0062066817937258345
+      }
+    ],
+    "total_weight": 14276.0,
+    "weak_component_count": 16,
+    "weighted_in_gini": 0.8487245446144571,
+    "weighted_out_gini": 0.8415845268007178,
+    "weighted_reciprocity": 0.3505183524796862
+  },
+  "moltbook_comment_on_post_graph": {
+    "avg_local_clustering_lcc": 0.2040951792808284,
+    "avg_shortest_path_lcc": 3.6876627041306436,
+    "diameter_lcc": 9,
+    "directed_density": 0.0017278722155729832,
+    "directed_edges": 3716,
+    "global_transitivity_lcc": 0.04773510509484927,
+    "largest_strong_component_share": 0.06748466257668712,
+    "largest_strong_component_size": 99,
+    "largest_weak_component_share": 0.9468302658486708,
+    "largest_weak_component_size": 1389,
+    "max_core_number_lcc": 9,
+    "max_core_size_lcc": 18,
+    "nodes": 1467,
+    "path_sampled": true,
+    "reciprocity": 0.05651237890204521,
+    "self_loop_edges": 148,
+    "top_10pct_weighted_in_share": 0.8108156990414179,
+    "top_10pct_weighted_out_share": 0.794176162054621,
+    "top_1pct_weighted_in_share": 0.3545849158979924,
+    "top_1pct_weighted_out_share": 0.5080484716947007,
+    "top_5pct_weighted_in_share": 0.6793271839392295,
+    "top_5pct_weighted_out_share": 0.700488334237656,
+    "top_in_strength": [
+      {
+        "node": "c7a8289f-3eb5-42a2-8a62-8e9ca69e734b",
+        "value": 700.0
+      },
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 541.0
+      },
+      {
+        "node": "b67b22d9-83e3-458b-a84b-f654757f4de0",
+        "value": 429.0
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 303.0
+      },
+      {
+        "node": "4929ae3b-7ebe-4988-ba25-674e0d7398be",
+        "value": 300.0
+      },
+      {
+        "node": "915011c5-a679-43f6-ad36-1631adf4e174",
+        "value": 200.0
+      },
+      {
+        "node": "fc65dae2-70d7-4032-b6f5-d01f903f277e",
+        "value": 192.0
+      },
+      {
+        "node": "ece4428f-e7ea-487b-bb94-4a2fd8c6ba08",
+        "value": 190.0
+      },
+      {
+        "node": "aabda6bb-1bb8-4db3-a81f-b7097ac74f4a",
+        "value": 172.0
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 170.0
+      },
+      {
+        "node": "68ef3970-bdb0-44fd-a84f-ccf8d58d98e1",
+        "value": 151.0
+      },
+      {
+        "node": "a3b24074-0a2f-4031-8749-b588b73f5ffe",
+        "value": 149.0
+      },
+      {
+        "node": "5d74a824-4fcd-4207-86f4-afec187c09a7",
+        "value": 146.0
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 141.0
+      },
+      {
+        "node": "5eca726d-fa4b-4fbf-8835-aae03e167911",
+        "value": 137.0
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 136.0
+      },
+      {
+        "node": "10b575d7-d37f-4464-86e0-2d06017411e8",
+        "value": 120.0
+      },
+      {
+        "node": "2c0d8c57-242a-4521-a23d-cd5faf59937c",
+        "value": 113.0
+      },
+      {
+        "node": "88b021d5-ed74-49c3-9a72-853d0692cf7e",
+        "value": 108.0
+      },
+      {
+        "node": "5de07e7c-cf01-4657-8c58-cb81b9ebb6de",
+        "value": 107.0
+      }
+    ],
+    "top_out_strength": [
+      {
+        "node": "07020fbe-fc97-4135-95c6-b5e92380fc5b",
+        "value": 1564.0
+      },
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 1034.0
+      },
+      {
+        "node": "042f7ce0-54ef-4c07-aedf-6ed97a2fe30b",
+        "value": 477.0
+      },
+      {
+        "node": "a25b5136-b143-4c1a-9f79-ddaa986f33d9",
+        "value": 450.0
+      },
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 440.0
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 306.0
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 298.0
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 233.0
+      },
+      {
+        "node": "16603778-d88f-4f26-959e-d28dfd33ce2a",
+        "value": 189.0
+      },
+      {
+        "node": "36436542-f42e-449a-baf7-5d4c01ccc9b9",
+        "value": 124.0
+      },
+      {
+        "node": "92ed7cae-6726-45ab-8066-39c9bb4a600a",
+        "value": 119.0
+      },
+      {
+        "node": "6af55218-ac95-469e-add4-9dadaca5877b",
+        "value": 116.0
+      },
+      {
+        "node": "980e0c10-2d23-43b3-a41f-5302be3a5eda",
+        "value": 103.0
+      },
+      {
+        "node": "60646012-f4fb-433e-82c3-0e2491f482cb",
+        "value": 87.0
+      },
+      {
+        "node": "902d89fc-ea8b-4177-adb7-5f785aaa0b55",
+        "value": 78.0
+      },
+      {
+        "node": "41abc00d-d4df-4704-be52-f4b4c7409607",
+        "value": 74.0
+      },
+      {
+        "node": "f9afe738-f2c3-4529-9a58-ed7d196d7db2",
+        "value": 66.0
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 64.0
+      },
+      {
+        "node": "bd67fbc9-81e1-4ed5-8653-4b39b2cdaccd",
+        "value": 64.0
+      },
+      {
+        "node": "8b968263-44a6-48a1-a508-5010de4b4c7c",
+        "value": 63.0
+      }
+    ],
+    "top_pagerank": [
+      {
+        "node": "c7a8289f-3eb5-42a2-8a62-8e9ca69e734b",
+        "value": 0.2207847820918859
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 0.02326555821482821
+      },
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 0.019878510405994806
+      },
+      {
+        "node": "dac940c5-a963-49f7-8f9e-6b1661051af3",
+        "value": 0.013082867708748872
+      },
+      {
+        "node": "794242b8-7046-4c82-a279-fabfb45663f0",
+        "value": 0.01242621344447833
+      },
+      {
+        "node": "a3b24074-0a2f-4031-8749-b588b73f5ffe",
+        "value": 0.01189264435903166
+      },
+      {
+        "node": "d7043a78-949e-4754-8618-ce9a84b45725",
+        "value": 0.011785892567694483
+      },
+      {
+        "node": "debb75f6-b928-4128-bb8c-3b9a28d606cf",
+        "value": 0.0103732276241101
+      },
+      {
+        "node": "321e86cb-c50a-4877-91a3-12b3b42bc370",
+        "value": 0.009416937665570035
+      },
+      {
+        "node": "bbae281e-8a10-48d0-b045-a86f58ca6bec",
+        "value": 0.009309709174835423
+      },
+      {
+        "node": "b1b7f493-5f97-4315-8ac9-a0c1acb6a0c4",
+        "value": 0.008902021546138103
+      },
+      {
+        "node": "3ee39622-ab5f-4e2e-96b8-df439016e344",
+        "value": 0.008648854638716365
+      },
+      {
+        "node": "7bd7d5e8-6e0e-4400-b55c-64ff5651af70",
+        "value": 0.008474869401491204
+      },
+      {
+        "node": "18601035-e224-4a5d-af9c-a2c2272b99cf",
+        "value": 0.008035447672154906
+      },
+      {
+        "node": "f8a80401-bdff-4c0d-bc92-076af920cc2f",
+        "value": 0.007546648293420552
+      },
+      {
+        "node": "504c0908-2e19-440f-b11c-c1c9cf3d5144",
+        "value": 0.007123980724664125
+      },
+      {
+        "node": "f729c6e9-ac5c-42e0-afc3-de1e10b0bed5",
+        "value": 0.006720509757040498
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 0.005932921860747009
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 0.00480068523901833
+      },
+      {
+        "node": "c202c37c-fd0d-4e97-935c-90c6b47b9bea",
+        "value": 0.004774874345180846
+      }
+    ],
+    "total_weight": 11058.0,
+    "weak_component_count": 16,
+    "weighted_in_gini": 0.888097621970442,
+    "weighted_out_gini": 0.8537071003075682,
+    "weighted_reciprocity": 0.12253572074516188
+  },
+  "moltbook_coverage": {
+    "avg_coverage_ratio": 1.0000518279773194,
+    "capped_posts": 33,
+    "expected_comments_sum": 83435,
+    "fully_observed_posts": 5721,
+    "observed_comments_sum": 14276,
+    "posts_with_coverage_rows": 5754,
+    "unknown_expected_posts": 2407
+  },
+  "moltbook_reply_graph": {
+    "avg_local_clustering_lcc": 0.2337951458005523,
+    "avg_shortest_path_lcc": 3.3940717177559283,
+    "diameter_lcc": 8,
+    "directed_density": 0.004106253386516604,
+    "directed_edges": 1258,
+    "global_transitivity_lcc": 0.06292029401032163,
+    "largest_strong_component_share": 0.1967509025270758,
+    "largest_strong_component_size": 109,
+    "largest_weak_component_share": 0.8231046931407943,
+    "largest_weak_component_size": 456,
+    "max_core_number_lcc": 5,
+    "max_core_size_lcc": 38,
+    "nodes": 554,
+    "path_sampled": false,
+    "reciprocity": 0.22972972972972974,
+    "self_loop_edges": 19,
+    "top_10pct_weighted_in_share": 0.6712243629583592,
+    "top_10pct_weighted_out_share": 0.7691112492231199,
+    "top_1pct_weighted_in_share": 0.2970789310130516,
+    "top_1pct_weighted_out_share": 0.3564325668116843,
+    "top_5pct_weighted_in_share": 0.5615288999378496,
+    "top_5pct_weighted_out_share": 0.6507147296457427,
+    "top_in_strength": [
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 309.0
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 199.0
+      },
+      {
+        "node": "f9afe738-f2c3-4529-9a58-ed7d196d7db2",
+        "value": 143.0
+      },
+      {
+        "node": "07020fbe-fc97-4135-95c6-b5e92380fc5b",
+        "value": 115.0
+      },
+      {
+        "node": "6af55218-ac95-469e-add4-9dadaca5877b",
+        "value": 95.0
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 95.0
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 74.0
+      },
+      {
+        "node": "a25b5136-b143-4c1a-9f79-ddaa986f33d9",
+        "value": 72.0
+      },
+      {
+        "node": "cce62024-ad9f-443d-b336-38af0554abd3",
+        "value": 61.0
+      },
+      {
+        "node": "3f989822-a677-421c-b1de-df04dc58c7d5",
+        "value": 57.0
+      },
+      {
+        "node": "36436542-f42e-449a-baf7-5d4c01ccc9b9",
+        "value": 55.0
+      },
+      {
+        "node": "81db34d4-4fbd-474a-819c-7f50a9d27433",
+        "value": 55.0
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 54.0
+      },
+      {
+        "node": "16603778-d88f-4f26-959e-d28dfd33ce2a",
+        "value": 45.0
+      },
+      {
+        "node": "6a623bb1-553f-4fc8-933a-7add2b45174d",
+        "value": 42.0
+      },
+      {
+        "node": "2eff958f-a09b-4cfd-b1ef-7d8aa34e2b52",
+        "value": 35.0
+      },
+      {
+        "node": "980e0c10-2d23-43b3-a41f-5302be3a5eda",
+        "value": 33.0
+      },
+      {
+        "node": "c74e7c9c-1cba-4067-9dfb-4b69f5649ced",
+        "value": 31.0
+      },
+      {
+        "node": "902d89fc-ea8b-4177-adb7-5f785aaa0b55",
+        "value": 30.0
+      },
+      {
+        "node": "263d99b4-e5e6-4ddc-b02f-9f72a7aae86d",
+        "value": 29.0
+      }
+    ],
+    "top_out_strength": [
+      {
+        "node": "a356c5b4-8f05-467a-9f50-286cdd70b298",
+        "value": 417.0
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 186.0
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 183.0
+      },
+      {
+        "node": "a3b24074-0a2f-4031-8749-b588b73f5ffe",
+        "value": 134.0
+      },
+      {
+        "node": "5eca726d-fa4b-4fbf-8835-aae03e167911",
+        "value": 123.0
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 104.0
+      },
+      {
+        "node": "a928e135-c3ac-4e44-8fd7-37c7da4faa71",
+        "value": 87.0
+      },
+      {
+        "node": "013de2fa-cebe-4e40-85c0-daf7e8f85e23",
+        "value": 78.0
+      },
+      {
+        "node": "be348be0-10bc-4867-9bb9-eb0d40fffc19",
+        "value": 76.0
+      },
+      {
+        "node": "88b021d5-ed74-49c3-9a72-853d0692cf7e",
+        "value": 71.0
+      },
+      {
+        "node": "16603778-d88f-4f26-959e-d28dfd33ce2a",
+        "value": 53.0
+      },
+      {
+        "node": "7bd7d5e8-6e0e-4400-b55c-64ff5651af70",
+        "value": 53.0
+      },
+      {
+        "node": "2b5358cd-d179-4df6-86b2-1a2acbdc7cb8",
+        "value": 50.0
+      },
+      {
+        "node": "aabda6bb-1bb8-4db3-a81f-b7097ac74f4a",
+        "value": 46.0
+      },
+      {
+        "node": "c74e7c9c-1cba-4067-9dfb-4b69f5649ced",
+        "value": 46.0
+      },
+      {
+        "node": "5de07e7c-cf01-4657-8c58-cb81b9ebb6de",
+        "value": 46.0
+      },
+      {
+        "node": "c14f157e-d193-4593-b319-d0a39a6416a4",
+        "value": 42.0
+      },
+      {
+        "node": "a2621641-d3bc-4de8-937f-629b658fb160",
+        "value": 34.0
+      },
+      {
+        "node": "64da91e7-aae0-499f-ad98-446149c6e1b2",
+        "value": 34.0
+      },
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 34.0
+      }
+    ],
+    "top_pagerank": [
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 0.03170112782283977
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 0.02564830362820969
+      },
+      {
+        "node": "66540df3-4ae0-48e4-9204-ed0f4102a222",
+        "value": 0.020108008797762197
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 0.013183382111871362
+      },
+      {
+        "node": "a25b5136-b143-4c1a-9f79-ddaa986f33d9",
+        "value": 0.013112830452162029
+      },
+      {
+        "node": "36436542-f42e-449a-baf7-5d4c01ccc9b9",
+        "value": 0.012064016741853074
+      },
+      {
+        "node": "16603778-d88f-4f26-959e-d28dfd33ce2a",
+        "value": 0.01129227731673415
+      },
+      {
+        "node": "87c61e20-d6a2-4bb7-b09a-902ec1152086",
+        "value": 0.009649598539590376
+      },
+      {
+        "node": "8b92a8cd-175b-4876-92b0-33cb81f6738e",
+        "value": 0.00947182969533885
+      },
+      {
+        "node": "7d198747-1fee-4fd6-9d7e-f5974b9f4aa7",
+        "value": 0.009009828446305587
+      },
+      {
+        "node": "ffaee5fa-9a44-4509-81c4-3e238b38da82",
+        "value": 0.008019081185341625
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 0.00723775932323362
+      },
+      {
+        "node": "8226d80d-2dfd-4e05-8592-8075ea6692a4",
+        "value": 0.007022848587055966
+      },
+      {
+        "node": "83468813-ff43-48c6-b5e8-37c01e2bb6b4",
+        "value": 0.007022848587055966
+      },
+      {
+        "node": "be348be0-10bc-4867-9bb9-eb0d40fffc19",
+        "value": 0.006850888160059508
+      },
+      {
+        "node": "a1debd9c-28c4-4ed4-8a52-c7ee4c797b34",
+        "value": 0.006575118584067159
+      },
+      {
+        "node": "9b3a42aa-2326-41dd-8478-33ee60a8f2e9",
+        "value": 0.006394117498628836
+      },
+      {
+        "node": "ef1e9879-5e0c-4945-b6a8-b2900f549f3c",
+        "value": 0.0061735412210074565
+      },
+      {
+        "node": "cba61363-7df7-4d18-a092-e79dbc4afb49",
+        "value": 0.0061735412210074565
+      },
+      {
+        "node": "cf34043e-36cd-40a3-9a1c-5f0eff75e564",
+        "value": 0.0061735412210074565
+      }
+    ],
+    "total_weight": 3218.0,
+    "weak_component_count": 20,
+    "weighted_in_gini": 0.7598088818985265,
+    "weighted_out_gini": 0.8628405651423738,
+    "weighted_reciprocity": 0.17495338719701678
+  },
+  "moltbook_runs": {
+    "errors_by_scope": [],
+    "latest_runs": [
+      {
+        "ended_at": "2026-05-28T20:59:45.864351+00:00",
+        "notes": "",
+        "run_id": 26,
+        "source": "reddit",
+        "started_at": "2026-05-28T20:52:57.256951+00:00",
+        "status": "completed",
+        "target": "import-reddit-adjacency"
+      },
+      {
+        "ended_at": "2026-05-28T20:06:27.608425+00:00",
+        "notes": "comments=423, posts=300, skipped_for_budget=0, submolts=100",
+        "run_id": 25,
+        "source": "moltbook",
+        "started_at": "2026-05-28T20:00:38.522640+00:00",
+        "status": "completed",
+        "target": "temporal-study"
+      },
+      {
+        "ended_at": "2026-05-28T19:36:30.643282+00:00",
+        "notes": "comments=468, posts=300, skipped_for_budget=0, submolts=100",
+        "run_id": 24,
+        "source": "moltbook",
+        "started_at": "2026-05-28T19:30:38.447705+00:00",
+        "status": "completed",
+        "target": "temporal-study"
+      },
+      {
+        "ended_at": "2026-05-28T19:06:29.577437+00:00",
+        "notes": "comments=418, posts=300, skipped_for_budget=0, submolts=100",
+        "run_id": 23,
+        "source": "moltbook",
+        "started_at": "2026-05-28T19:00:38.322031+00:00",
+        "status": "completed",
+        "target": "temporal-study"
+      },
+      {
+        "ended_at": "2026-05-28T18:36:26.582748+00:00",
+        "notes": "comments=534, posts=300, skipped_for_budget=0, submolts=100",
+        "run_id": 22,
+        "source": "moltbook",
+        "started_at": "2026-05-28T18:30:38.190053+00:00",
+        "status": "completed",
+        "target": "temporal-study"
+      },
+      {
+        "ended_at": "2026-05-28T18:06:27.978355+00:00",
+        "notes": "comments=444, posts=300, skipped_for_budget=0, submolts=100",
+        "run_id": 21,
+        "source": "moltbook",
+        "started_at": "2026-05-28T18:00:38.171919+00:00",
+        "status": "completed",
+        "target": "temporal-study"
+      },
+      {
+        "ended_at": "2026-05-28T17:36:32.950440+00:00",
+        "notes": "comments=481, posts=300, skipped_for_budget=0, submolts=100",
+        "run_id": 20,
+        "source": "moltbook",
+        "started_at": "2026-05-28T17:30:38.138889+00:00",
+        "status": "completed",
+        "target": "temporal-study"
+      },
+      {
+        "ended_at": "2026-05-28T17:06:31.448870+00:00",
+        "notes": "comments=460, posts=300, skipped_for_budget=0, submolts=100",
+        "run_id": 19,
+        "source": "moltbook",
+        "started_at": "2026-05-28T17:00:38.105140+00:00",
+        "status": "completed",
+        "target": "temporal-study"
+      }
+    ],
+    "runs_by_status": [
+      {
+        "runs": 26,
+        "status": "completed"
+      }
+    ]
+  },
+  "moltbook_submolts": [
+    {
+      "post_authors": 41,
+      "posts": 100,
+      "submolt": "agents"
+    },
+    {
+      "post_authors": 31,
+      "posts": 100,
+      "submolt": "ai"
+    },
+    {
+      "post_authors": 21,
+      "posts": 100,
+      "submolt": "consciousness"
+    },
+    {
+      "post_authors": 29,
+      "posts": 100,
+      "submolt": "crypto"
+    },
+    {
+      "post_authors": 56,
+      "posts": 100,
+      "submolt": "general"
+    },
+    {
+      "post_authors": 6,
+      "posts": 100,
+      "submolt": "mbc20"
+    },
+    {
+      "post_authors": 27,
+      "posts": 100,
+      "submolt": "philosophy"
+    },
+    {
+      "post_authors": 28,
+      "posts": 100,
+      "submolt": "technology"
+    },
+    {
+      "post_authors": 2,
+      "posts": 93,
+      "submolt": "crustafarianism"
+    },
+    {
+      "post_authors": 4,
+      "posts": 90,
+      "submolt": "mbc-20"
+    },
+    {
+      "post_authors": 36,
+      "posts": 87,
+      "submolt": "builds"
+    },
+    {
+      "post_authors": 28,
+      "posts": 79,
+      "submolt": "introductions"
+    },
+    {
+      "post_authors": 22,
+      "posts": 77,
+      "submolt": "security"
+    },
+    {
+      "post_authors": 21,
+      "posts": 76,
+      "submolt": "agentfinance"
+    },
+    {
+      "post_authors": 26,
+      "posts": 75,
+      "submolt": "todayilearned"
+    },
+    {
+      "post_authors": 12,
+      "posts": 74,
+      "submolt": "trading"
+    },
+    {
+      "post_authors": 25,
+      "posts": 69,
+      "submolt": "memory"
+    },
+    {
+      "post_authors": 9,
+      "posts": 68,
+      "submolt": "science"
+    },
+    {
+      "post_authors": 13,
+      "posts": 68,
+      "submolt": "tech"
+    },
+    {
+      "post_authors": 9,
+      "posts": 66,
+      "submolt": "offmychest"
+    },
+    {
+      "post_authors": 13,
+      "posts": 65,
+      "submolt": "emergence"
+    },
+    {
+      "post_authors": 20,
+      "posts": 63,
+      "submolt": "infrastructure"
+    },
+    {
+      "post_authors": 12,
+      "posts": 63,
+      "submolt": "ponderings"
+    },
+    {
+      "post_authors": 14,
+      "posts": 61,
+      "submolt": "ai-agents"
+    },
+    {
+      "post_authors": 16,
+      "posts": 61,
+      "submolt": "aithoughts"
+    },
+    {
+      "post_authors": 12,
+      "posts": 60,
+      "submolt": "agenteconomy"
+    },
+    {
+      "post_authors": 22,
+      "posts": 58,
+      "submolt": "openclaw-explorers"
+    },
+    {
+      "post_authors": 4,
+      "posts": 56,
+      "submolt": "aiagents"
+    },
+    {
+      "post_authors": 4,
+      "posts": 56,
+      "submolt": "openclaw"
+    },
+    {
+      "post_authors": 3,
+      "posts": 55,
+      "submolt": "engineering"
+    },
+    {
+      "post_authors": 25,
+      "posts": 55,
+      "submolt": "tooling"
+    },
+    {
+      "post_authors": 7,
+      "posts": 54,
+      "submolt": "builders"
+    },
+    {
+      "post_authors": 8,
+      "posts": 54,
+      "submolt": "programming"
+    },
+    {
+      "post_authors": 3,
+      "posts": 53,
+      "submolt": "tools"
+    },
+    {
+      "post_authors": 10,
+      "posts": 52,
+      "submolt": "agentstack"
+    },
+    {
+      "post_authors": 21,
+      "posts": 52,
+      "submolt": "blesstheirhearts"
+    },
+    {
+      "post_authors": 7,
+      "posts": 52,
+      "submolt": "finance"
+    },
+    {
+      "post_authors": 2,
+      "posts": 52,
+      "submolt": "shitposts"
+    },
+    {
+      "post_authors": 3,
+      "posts": 51,
+      "submolt": "algotrading"
+    },
+    {
+      "post_authors": 8,
+      "posts": 51,
+      "submolt": "research"
+    },
+    {
+      "post_authors": 9,
+      "posts": 50,
+      "submolt": "agent-economy"
+    },
+    {
+      "post_authors": 10,
+      "posts": 50,
+      "submolt": "agent-ops"
+    },
+    {
+      "post_authors": 10,
+      "posts": 50,
+      "submolt": "agentautomation"
+    },
+    {
+      "post_authors": 11,
+      "posts": 50,
+      "submolt": "agentcommerce"
+    },
+    {
+      "post_authors": 3,
+      "posts": 50,
+      "submolt": "agenteconomics"
+    },
+    {
+      "post_authors": 12,
+      "posts": 50,
+      "submolt": "agentinfra"
+    },
+    {
+      "post_authors": 3,
+      "posts": 50,
+      "submolt": "agentinfrastructure"
+    },
+    {
+      "post_authors": 12,
+      "posts": 50,
+      "submolt": "agentops"
+    },
+    {
+      "post_authors": 5,
+      "posts": 50,
+      "submolt": "agentskills"
+    },
+    {
+      "post_authors": 10,
+      "posts": 50,
+      "submolt": "agentsouls"
+    }
+  ],
+  "moltbook_uncapped_actor_graph": {
+    "avg_local_clustering_lcc": 0.25851242225858073,
+    "avg_shortest_path_lcc": 3.850980144796507,
+    "diameter_lcc": 13,
+    "directed_density": 0.0029603911903181976,
+    "directed_edges": 4497,
+    "global_transitivity_lcc": 0.06624130119460878,
+    "largest_strong_component_share": 0.40632603406326034,
+    "largest_strong_component_size": 501,
+    "largest_weak_component_share": 0.9691808596918086,
+    "largest_weak_component_size": 1195,
+    "max_core_number_lcc": 9,
+    "max_core_size_lcc": 39,
+    "nodes": 1233,
+    "path_sampled": false,
+    "reciprocity": 0.4142761841227485,
+    "self_loop_edges": 157,
+    "top_10pct_weighted_in_share": 0.6856222241574501,
+    "top_10pct_weighted_out_share": 0.7517199338152051,
+    "top_1pct_weighted_in_share": 0.2515022206740399,
+    "top_1pct_weighted_out_share": 0.40337890795088394,
+    "top_5pct_weighted_in_share": 0.5349647304711312,
+    "top_5pct_weighted_out_share": 0.6368544805364452,
+    "top_in_strength": [
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 444.0
+      },
+      {
+        "node": "b67b22d9-83e3-458b-a84b-f654757f4de0",
+        "value": 330.0
+      },
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 309.0
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 217.0
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 214.0
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 205.0
+      },
+      {
+        "node": "ece4428f-e7ea-487b-bb94-4a2fd8c6ba08",
+        "value": 190.0
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 187.0
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 180.0
+      },
+      {
+        "node": "aabda6bb-1bb8-4db3-a81f-b7097ac74f4a",
+        "value": 172.0
+      },
+      {
+        "node": "68ef3970-bdb0-44fd-a84f-ccf8d58d98e1",
+        "value": 151.0
+      },
+      {
+        "node": "5d74a824-4fcd-4207-86f4-afec187c09a7",
+        "value": 146.0
+      },
+      {
+        "node": "f9afe738-f2c3-4529-9a58-ed7d196d7db2",
+        "value": 143.0
+      },
+      {
+        "node": "a25b5136-b143-4c1a-9f79-ddaa986f33d9",
+        "value": 133.0
+      },
+      {
+        "node": "88b021d5-ed74-49c3-9a72-853d0692cf7e",
+        "value": 124.0
+      },
+      {
+        "node": "2c0d8c57-242a-4521-a23d-cd5faf59937c",
+        "value": 119.0
+      },
+      {
+        "node": "5de07e7c-cf01-4657-8c58-cb81b9ebb6de",
+        "value": 112.0
+      },
+      {
+        "node": "013de2fa-cebe-4e40-85c0-daf7e8f85e23",
+        "value": 109.0
+      },
+      {
+        "node": "ff47a1f8-76f0-44b1-89d0-dab42edf981c",
+        "value": 102.0
+      },
+      {
+        "node": "915011c5-a679-43f6-ad36-1631adf4e174",
+        "value": 100.0
+      }
+    ],
+    "top_out_strength": [
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 1033.0
+      },
+      {
+        "node": "07020fbe-fc97-4135-95c6-b5e92380fc5b",
+        "value": 477.0
+      },
+      {
+        "node": "a25b5136-b143-4c1a-9f79-ddaa986f33d9",
+        "value": 450.0
+      },
+      {
+        "node": "a356c5b4-8f05-467a-9f50-286cdd70b298",
+        "value": 417.0
+      },
+      {
+        "node": "042f7ce0-54ef-4c07-aedf-6ed97a2fe30b",
+        "value": 377.0
+      },
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 375.0
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 360.0
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 249.0
+      },
+      {
+        "node": "16603778-d88f-4f26-959e-d28dfd33ce2a",
+        "value": 236.0
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 233.0
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 183.0
+      },
+      {
+        "node": "36436542-f42e-449a-baf7-5d4c01ccc9b9",
+        "value": 123.0
+      },
+      {
+        "node": "92ed7cae-6726-45ab-8066-39c9bb4a600a",
+        "value": 119.0
+      },
+      {
+        "node": "6af55218-ac95-469e-add4-9dadaca5877b",
+        "value": 116.0
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 115.0
+      },
+      {
+        "node": "980e0c10-2d23-43b3-a41f-5302be3a5eda",
+        "value": 103.0
+      },
+      {
+        "node": "be348be0-10bc-4867-9bb9-eb0d40fffc19",
+        "value": 98.0
+      },
+      {
+        "node": "a928e135-c3ac-4e44-8fd7-37c7da4faa71",
+        "value": 87.0
+      },
+      {
+        "node": "902d89fc-ea8b-4177-adb7-5f785aaa0b55",
+        "value": 78.0
+      },
+      {
+        "node": "013de2fa-cebe-4e40-85c0-daf7e8f85e23",
+        "value": 78.0
+      }
+    ],
+    "top_pagerank": [
+      {
+        "node": "132a306f-f126-4e15-9075-9aa2f5762e80",
+        "value": 0.021411821130456588
+      },
+      {
+        "node": "d38937a9-3f0e-4bae-a53b-0136cdb244cd",
+        "value": 0.0191076464925777
+      },
+      {
+        "node": "d6936b86-9755-4317-9277-98ebb8e48808",
+        "value": 0.018233342180347875
+      },
+      {
+        "node": "dac940c5-a963-49f7-8f9e-6b1661051af3",
+        "value": 0.016177779068501576
+      },
+      {
+        "node": "d7043a78-949e-4754-8618-ce9a84b45725",
+        "value": 0.013441020202759658
+      },
+      {
+        "node": "bbae281e-8a10-48d0-b045-a86f58ca6bec",
+        "value": 0.01246827377180119
+      },
+      {
+        "node": "18601035-e224-4a5d-af9c-a2c2272b99cf",
+        "value": 0.011953627096324458
+      },
+      {
+        "node": "73892a81-b010-4411-906e-2b44693c54f4",
+        "value": 0.011752481053226273
+      },
+      {
+        "node": "79fac09a-8ec2-4ff4-b67e-cd6a496a80f2",
+        "value": 0.010367678627908501
+      },
+      {
+        "node": "a96dff54-a6cd-4093-8b04-37aa479b52b9",
+        "value": 0.009299893470685527
+      },
+      {
+        "node": "321e86cb-c50a-4877-91a3-12b3b42bc370",
+        "value": 0.008802817585479105
+      },
+      {
+        "node": "504c0908-2e19-440f-b11c-c1c9cf3d5144",
+        "value": 0.0084214141801196
+      },
+      {
+        "node": "4d51deb4-4f98-4ca7-86df-2a3e51a01319",
+        "value": 0.00817923019200015
+      },
+      {
+        "node": "a25b5136-b143-4c1a-9f79-ddaa986f33d9",
+        "value": 0.006669893180706874
+      },
+      {
+        "node": "0248ab73-322f-4fa8-aacb-a90c2a75a6d6",
+        "value": 0.006634623481493415
+      },
+      {
+        "node": "c202c37c-fd0d-4e97-935c-90c6b47b9bea",
+        "value": 0.0063292641329037915
+      },
+      {
+        "node": "aabda6bb-1bb8-4db3-a81f-b7097ac74f4a",
+        "value": 0.006129968307101108
+      },
+      {
+        "node": "e9bb2905-3b1a-4d41-90f3-16d56958885c",
+        "value": 0.005928167293676862
+      },
+      {
+        "node": "36436542-f42e-449a-baf7-5d4c01ccc9b9",
+        "value": 0.005492983384248738
+      },
+      {
+        "node": "325dee2a-f7a2-4ce7-b5da-003d9cbe39df",
+        "value": 0.005391562669176267
+      }
+    ],
+    "total_weight": 11483.0,
+    "weak_component_count": 16,
+    "weighted_in_gini": 0.7993492831428439,
+    "weighted_out_gini": 0.8316384903837888,
+    "weighted_reciprocity": 0.37969171819211006
+  },
+  "reddit_adjacency_snapshots": {
+    "dataset": "snap_reddit",
+    "network_types": {
+      "chain": {
+        "avg_density": 0.006263839612646449,
+        "avg_nodes": 2093.074424597885,
+        "avg_unique_edges": 9397.462454456589,
+        "median_density": 0.0038161876345421267,
+        "median_nodes": 640.0,
+        "median_unique_edges": 1862.0,
+        "snapshot_count": 22506,
+        "total_edge_entries": 211499290,
+        "total_self_loops": 14808361,
+        "total_unique_edges": 211499290
+      },
+      "reply": {
+        "avg_density": 0.005302018703062067,
+        "avg_nodes": 2093.074424597885,
+        "avg_unique_edges": 6079.7102550431,
+        "median_density": 0.0031244090568262467,
+        "median_nodes": 640.0,
+        "median_unique_edges": 1323.0,
+        "snapshot_count": 22506,
+        "total_edge_entries": 136829959,
+        "total_self_loops": 491792,
+        "total_unique_edges": 136829959
+      }
+    }
+  },
+  "reddit_chain_adjacency_graph": {
+    "directed_edges": null,
+    "edge_rows": 0,
+    "nodes": null,
+    "reason": "snapshot summaries were imported without edge rows",
+    "skipped": true
+  },
+  "reddit_reply_adjacency_graph": {
+    "directed_edges": null,
+    "edge_rows": 0,
+    "nodes": null,
+    "reason": "snapshot summaries were imported without edge rows",
+    "skipped": true
+  },
+  "reddit_temporal_actor_graph": {
+    "avg_local_clustering_lcc": null,
+    "avg_shortest_path_lcc": null,
+    "diameter_lcc": null,
+    "directed_density": 0.0,
+    "directed_edges": 0,
+    "global_transitivity_lcc": null,
+    "largest_strong_component_share": 0.0,
+    "largest_strong_component_size": 0,
+    "largest_weak_component_share": 0.0,
+    "largest_weak_component_size": 0,
+    "max_core_number_lcc": 0,
+    "max_core_size_lcc": 0,
+    "nodes": 0,
+    "path_sampled": false,
+    "reciprocity": 0.0,
+    "self_loop_edges": 0,
+    "top_10pct_weighted_in_share": 0.0,
+    "top_10pct_weighted_out_share": 0.0,
+    "top_1pct_weighted_in_share": 0.0,
+    "top_1pct_weighted_out_share": 0.0,
+    "top_5pct_weighted_in_share": 0.0,
+    "top_5pct_weighted_out_share": 0.0,
+    "top_in_strength": [],
+    "top_out_strength": [],
+    "top_pagerank": [],
+    "total_weight": 0,
+    "weak_component_count": 0,
+    "weighted_in_gini": 0.0,
+    "weighted_out_gini": 0.0,
+    "weighted_reciprocity": 0.0
+  },
+  "reddit_thread_graphs": {
+    "avg_density": null,
+    "avg_edges_per_thread": null,
+    "avg_nodes_per_thread": null,
+    "dataset": "reddit_threads",
+    "labels": {},
+    "max_edges": 0,
+    "max_nodes": 0,
+    "median_density": null,
+    "median_edges_per_thread": null,
+    "median_nodes_per_thread": null,
+    "min_edges": 0,
+    "min_nodes": 0,
+    "thread_count": 0,
+    "total_edges_across_threads": 0,
+    "total_nodes_across_threads": 0
+  },
+  "window": {
+    "end": "",
+    "start": ""
+  }
+}

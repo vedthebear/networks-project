@@ -1,0 +1,128 @@
+{
+  "moltbook_direct_nonempty": {
+    "count": 289,
+    "median_nodes": 8,
+    "median_edges": 9,
+    "median_density": 0.1388888888888889,
+    "mean_density": 0.21071767854937962,
+    "p25_density": 0.0784313725490196,
+    "p75_density": 0.3333333333333333,
+    "p90_density": 0.5
+  },
+  "moltbook_chain_nonempty": {
+    "count": 289,
+    "median_nodes": 8,
+    "median_edges": 9,
+    "median_density": 0.14285714285714285,
+    "mean_density": 0.21381377944445074,
+    "p25_density": 0.08241758241758242,
+    "p75_density": 0.3333333333333333,
+    "p90_density": 0.5
+  },
+  "size_matched": {
+    "2-20": {
+      "reddit_reply": {
+        "count": 11,
+        "median_nodes": 18,
+        "median_edges": 67,
+        "median_density": 0.2708333333333333,
+        "mean_density": 0.28321697456935285,
+        "p25_density": 0.19203646370829033,
+        "p75_density": 0.34685314685314683,
+        "p90_density": 0.41228070175438597
+      },
+      "reddit_chain": {
+        "count": 11,
+        "median_nodes": 18,
+        "median_edges": 82,
+        "median_density": 0.275,
+        "mean_density": 0.29220374802981053,
+        "p25_density": 0.20464181286549707,
+        "p75_density": 0.3523476523476523,
+        "p90_density": 0.4298245614035088
+      },
+      "moltbook_direct_density_percentile_in_reddit_reply": 0.0,
+      "moltbook_chain_density_percentile_in_reddit_chain": 0.0,
+      "moltbook_direct_edges_percentile_in_reddit_reply": 0.0,
+      "moltbook_chain_edges_percentile_in_reddit_chain": 0.0
+    },
+    "5-30": {
+      "reddit_reply": {
+        "count": 28,
+        "median_nodes": 22.5,
+        "median_edges": 101.5,
+        "median_density": 0.2491854636591479,
+        "mean_density": 0.2548487817336821,
+        "p25_density": 0.17726982097186703,
+        "p75_density": 0.29602272727272727,
+        "p90_density": 0.36993006993006994
+      },
+      "reddit_chain": {
+        "count": 28,
+        "median_nodes": 22.5,
+        "median_edges": 128.5,
+        "median_density": 0.2656468758102152,
+        "mean_density": 0.27029502633330116,
+        "p25_density": 0.19171195652173914,
+        "p75_density": 0.3219952523738131,
+        "p90_density": 0.39386247810160857
+      },
+      "moltbook_direct_density_percentile_in_reddit_reply": 0.03571428571428571,
+      "moltbook_chain_density_percentile_in_reddit_chain": 0.0,
+      "moltbook_direct_edges_percentile_in_reddit_reply": 0.0,
+      "moltbook_chain_edges_percentile_in_reddit_chain": 0.0
+    },
+    "2-50": {
+      "reddit_reply": {
+        "count": 59,
+        "median_nodes": 32,
+        "median_edges": 189,
+        "median_density": 0.23397435897435898,
+        "mean_density": 0.2402981806676085,
+        "p25_density": 0.1561782642957481,
+        "p75_density": 0.328828197945845,
+        "p90_density": 0.3796257796257797
+      },
+      "reddit_chain": {
+        "count": 59,
+        "median_nodes": 32,
+        "median_edges": 234,
+        "median_density": 0.2578947368421053,
+        "mean_density": 0.2586643667076213,
+        "p25_density": 0.17147422420317887,
+        "p75_density": 0.34839996604702483,
+        "p90_density": 0.4245774345774346
+      },
+      "moltbook_direct_density_percentile_in_reddit_reply": 0.2033898305084746,
+      "moltbook_chain_density_percentile_in_reddit_chain": 0.1864406779661017,
+      "moltbook_direct_edges_percentile_in_reddit_reply": 0.0,
+      "moltbook_chain_edges_percentile_in_reddit_chain": 0.0
+    },
+    "2-100": {
+      "reddit_reply": {
+        "count": 183,
+        "median_nodes": 71,
+        "median_edges": 220,
+        "median_density": 0.0777489818585709,
+        "mean_density": 0.11301806792881354,
+        "p25_density": 0.022857051527937603,
+        "p75_density": 0.1561782642957481,
+        "p90_density": 0.30159863945578247
+      },
+      "reddit_chain": {
+        "count": 183,
+        "median_nodes": 71,
+        "median_edges": 263,
+        "median_density": 0.08350100603621731,
+        "mean_density": 0.12186177681473347,
+        "p25_density": 0.02646604938271605,
+        "p75_density": 0.1677894614728085,
+        "p90_density": 0.32233883058470764
+      },
+      "moltbook_direct_density_percentile_in_reddit_reply": 0.7103825136612022,
+      "moltbook_chain_density_percentile_in_reddit_chain": 0.7049180327868853,
+      "moltbook_direct_edges_percentile_in_reddit_reply": 0.0,
+      "moltbook_chain_edges_percentile_in_reddit_chain": 0.0
+    }
+  }
+}

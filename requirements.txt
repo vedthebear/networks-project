@@ -1,0 +1,2 @@
+# The scraper intentionally uses only the Python standard library.
+# This file exists so project setup tools have a conventional place to look.

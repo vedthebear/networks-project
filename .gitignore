@@ -1,0 +1,35 @@
+# Local secrets and machine-specific config
+.env
+config.json
+config.local.json
+*.local.json
+
+# Python/runtime artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# SQLite databases are data artifacts, not normal Git files.
+# Share them with Git LFS, a GitHub Release, Google Drive, OSF, or Zenodo.
+data/*.sqlite
+data/*.sqlite-*
+data/*.db
+data/*.db-*
+
+# Raw API archives are large and may contain sensitive/user-generated text.
+raw/*
+!raw/README.md
+
+# Logs and scratch outputs
+*.log
+reports/**/*.log
+reports/homework_pdf_text/
+reports/moltbook_adjacency_smoke*/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

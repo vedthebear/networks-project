@@ -1,0 +1,30 @@
+{
+  "database_path": "data/study.sqlite",
+  "raw_dir": "raw",
+  "reports_dir": "reports",
+  "moltbook": {
+    "base_url": "https://www.moltbook.com/api/v1",
+    "api_key_env": "MOLTBOOK_API_KEY",
+    "api_key": "",
+    "default_limit": 50,
+    "max_pages": 20,
+    "post_sorts": ["new", "hot", "top"],
+    "comment_sorts": ["new", "top", "old"],
+    "comment_limit": 100,
+    "comment_max_pages": 20,
+    "hydrate_comments": true,
+    "hydrate_recent_posts": 500,
+    "recrawl_offsets_hours": [1, 6, 24, 72, 168],
+    "submolt_query_param": "submolt",
+    "safety": {
+      "timeout_seconds": 45,
+      "max_retries": 6,
+      "min_delay_ms": 800,
+      "jitter_ms": 500,
+      "backoff_base_seconds": 2.0,
+      "cool_down_when_remaining_at_or_below": 1,
+      "honor_rate_limit_headers": true,
+      "continue_on_error": true
+    }
+  }
+}
