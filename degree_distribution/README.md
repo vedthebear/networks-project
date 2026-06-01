@@ -19,12 +19,21 @@ fitted exponents.
 - A network's **degree distribution** = "how many connections does each node have,
   and how common is each connection-count?" Plot it and you can see whether a few
   hubs dominate (heavy tail) or everyone is roughly similar (light tail).
-- **Reddit** subreddits: classic heavy-tailed / scale-free shape (expected).
-- **Moltbook** submolts: *[FILL IN after running — e.g., "even more extreme / not a
-  clean power law / similar exponent"]*.
-- The headline figure is `results/degree_ccdf_comparison.png`.
-- Full numbers (fitted exponent α, goodness-of-fit, distribution comparisons) are in
-  `results/powerlaw_summary.csv`.
+- **Reddit** subreddits: classic heavy-tailed shape — degree spans from 1 to 2,336,
+  the top 10% of subreddits hold 72% of all the connections. A long, straight-ish
+  tail on the log-log plot.
+- **Moltbook** submolts: **not** scale-free in the same way. The community network's
+  degree is *bounded* and drops off sharply (a "characteristic scale"), and the
+  active core is actually *more even* than Reddit (Gini 0.50 vs 0.76).
+- **The distinctly agentic signature is in *activity*, not *connectivity*.** Where
+  agents *post* is brutally concentrated: the top 1% of submolts hold **81%** of all
+  posts (Gini 0.975) — a far more extreme winner-take-all than anything on the Reddit
+  side. That's the "ghost town" — a few hyperactive communities, thousands near-dead.
+- **One-line answer to the RQ:** *No — agent community networks are not scale-free
+  like human ones. Their hallmark is extreme concentration of activity, not a
+  heavy-tailed web of community-to-community links.*
+- Headline figure: `results/degree_ccdf_comparison.png`. Numbers: `results/powerlaw_summary.csv`
+  and `results/concentration.csv`.
 
 ---
 
@@ -162,4 +171,53 @@ degree_distribution/
 
 ## Results
 
-*(filled in after running `analyze.py` — see `results/` for the figure and tables.)*
+### The headline figure (`results/degree_ccdf_comparison.png`)
+On a log-log CCDF plot, **Reddit (blue)** is a long, gently-sloping tail stretching
+across four orders of magnitude (degree 1 → 2,336). **Moltbook (orange)** is
+compressed into a much narrower range and then **bends sharply downward** — the
+signature of a distribution with a *characteristic scale* rather than a scale-free
+power law.
+
+### Power-law fits (`results/powerlaw_summary.csv`)
+Using the Clauset–Shalizi–Newman maximum-likelihood method (`R` = likelihood-ratio;
+`R>0` favors a power law, `R<0` favors the alternative; small `p` = significant):
+
+| Distribution | n | α | k_min | vs. exponential | vs. lognormal | verdict |
+|---|---|---|---|---|---|---|
+| Reddit subreddit degree | 35,776 | 1.80 | 1 | R=+33.5 (p≈0) | R=−10.8 (p≈0) | heavy-tailed; lognormal competitive |
+| Moltbook submolt degree (core) | 527 | 2.95 | 111 | R=−8.3 (p≈0) | R=−4.9 (p≈0) | **no clear power-law tail** |
+| Moltbook submolt degree (full) | 868 | 2.80 | 109 | R=−7.3 | R=−4.7 | **no clear power-law tail** |
+| Moltbook posts per submolt | 2,654 | 1.71 | 281 | R=+2.6 (p=.009) | R=−0.8 (ns) | heavy-tailed; power law plausible |
+| Moltbook authors per submolt | 2,654 | 1.62 | 4 | R=+5.6 | R=−1.9 (p=.06) | heavy-tailed |
+| Moltbook posts per agent | 27,342 | 1.59 | 2 | R=+33.5 | R=−8.2 | heavy-tailed |
+
+**Reading this honestly:** Reddit's community degree is strongly heavy-tailed —
+a power law fits the tail far better than an exponential. But, as is true for *most*
+real "scale-free" networks (Broido & Clauset 2019, *Scale-free networks are rare*),
+a lognormal fits at least as well, so we say "heavy-tailed" rather than claiming a
+pure power law. The key contrast is that the **Moltbook community-graph degree fails
+the test in the other direction**: an exponential beats the power law (R<0), i.e. it
+has a *thin* tail with a characteristic scale — the opposite of scale-free.
+
+### Concentration / the "ghost town" (`results/concentration.csv`)
+
+| Distribution | Gini | top 1% share | top 10% share |
+|---|---|---|---|
+| Reddit subreddit degree | 0.76 | 34% | 72% |
+| Moltbook submolt degree (core) | 0.50 | 4% | 29% |
+| **Moltbook posts per submolt** | **0.975** | **81%** | **97%** |
+| Moltbook authors per submolt | 0.92 | 62% | 92% |
+| Moltbook posts per agent | 0.91 | 54% | 90% |
+
+This is the punchline. The Moltbook *connection* network is more even than Reddit's
+(Gini 0.50 < 0.76), but Moltbook *activity* is wildly more concentrated: **81% of all
+posts come from the top 1% of submolts.** The agentic signature isn't a heavy-tailed
+web of hubs — it's a winner-take-all distribution of *where the activity happens*.
+
+### What this means for the paper
+A clean, slightly counter-intuitive result that's easy to defend: **agent community
+networks are not scale-free the way human ones are.** Humans build a heavy-tailed
+web of cross-community connections; agents instead pile nearly all activity into a
+few communities while the connection structure among active communities stays
+relatively flat. Pairs naturally with our other finding that agents don't bridge
+communities (no hyperlinks / cross-community hashtags).
