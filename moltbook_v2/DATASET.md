@@ -1,57 +1,61 @@
 # Moltbook v2 dataset manifest
 
-Fresh scrape via own API key (`netscicartographer`), collected 2026-06-01.
-Two-pass design: a **breadth** pass across the platform, then a **depth** pass
-on the active communities. All raw/derived data is gitignored; regenerate with
-the scripts below.
+Fresh max-volume scrape via own API key (`netscicartographer`), 2026-06-01.
+All raw/derived data is gitignored; regenerate with the scripts below.
 
-## How it was collected
-1. **Breadth pass** (`scrape_balanced.py --submolts 12000 --quota 100`)
-   Enumerated the top 12,000 submolts by popularity and pulled ~100 posts from
-   each. Result: 12,000 submolts touched, 641 with any posts (the rest are
-   near-empty tail communities), ~6.9k posts.
-2. **Depth pass** (`scrape_depth.py --min-posts 5 --quota 800`)
-   Re-scraped the 148 active submolts much deeper so each community's agent set
-   is well sampled (overlap is the edge fuel for the projection).
+## How it was collected (max-volume scrape)
+Five parallel workers on one API key (~500 req/min, under the 600/min ceiling),
+run detached overnight via `launch_mega.sh`:
+- **global-new** — `/posts?sort=new` cursor firehose (deep recent backlog).
+- **global-top** — `/posts?sort=top` cursor, all-time back to genesis.
+- **3× submolt shards** — each known submolt scraped under all 5 sort orders
+  (new/top/hot/old/controversial); each sort surfaces a mostly-different set.
+
+`merge_raw.py` then dedups all streams by post id → `posts_master.jsonl`
+(1,337,035 rows read → **1,089,907 unique posts**, ~18% cross-stream overlap).
 
 ## Final tables (`data/tables/`)
 | file | rows | description |
-|---|---|---|
-| posts.csv | 19,947 | post_id, author, submolt, created_at, score, comment_count, title |
-| membership.csv | 2,478 | agent × submolt bipartite edge list (n_posts) |
-| agents.csv | 864 | per-agent activity; 376 post in >1 submolt |
-| submolts.csv | 641 | per-submolt post/author counts + platform subscriber counts |
-| dataset_report.json | — | health metrics (active-submolt counts, graph sizes) |
+|---|---:|---|
+| posts.csv | **1,089,902** | post_id, author, submolt, created_at, score, comment_count, title |
+| membership.csv | 59,631 | agent × submolt bipartite edge list (n_posts) |
+| agents.csv | **27,342** | per-agent activity; **11,017 post in >1 submolt** |
+| submolts.csv | **2,654** | per-submolt post/author counts + platform subscriber counts |
 
-Activity profile: **641** submolts have posts; **60** have ≥5 distinct authors;
-**29** have ≥10. The active core is what carries the community graph.
+**Date span: 2026-01-28 → 2026-06-01 (124 days — the platform's full life).**
+Monthly volume shows a clear lifecycle: Jan 5k · Feb 90k · Mar 231k ·
+**Apr 408k (peak)** · May 348k · Jun 8k — explosive growth, an April peak,
+then decline. (Agent platform rises and falls in months; Reddit grew for years.)
+
+Activity profile: 2,654 submolts have posts; **533 have ≥5 authors**; 343 have ≥10.
 
 ## Graphs (`graphs/`)
 Shared-agent projection (submolts linked when ≥`min_shared` agents post in both;
-weight = Jaccard overlap of agent sets).
+weight = `shared` raw count and `jaccard` overlap). `*_master` keeps all edges
+(threshold later); `*_full` and `*_core` use min_shared=2.
 
-| artifact | nodes | edges | largest comp | clustering (unwtd) | notes |
-|---|---|---|---|---|---|
-| `*_full` (all submolts, min_shared=2) | 641 | 863 | 22% | low | fragmented — dragged down by ~580 tiny submolts |
-| `*_core` (≥5 authors, min_shared=2) | **60** | **493** | **95%** | **0.58** | the analyzable community network |
+| artifact | nodes | edges | largest comp | notes |
+|---|---:|---:|---|---|
+| `*_full` (all submolts) | 2,654 | 29,149 | 33% | fragmented tail of tiny submolts |
+| `*_core` (≥5 authors) | **533** | **25,445** | **98.9%** | the analyzable community network |
 
-`min_shared=1` makes even the full graph dense (~128k edges, 94% connected) but
-each edge is a single shared agent — a hairball driven by a few hyper-active
-agents. `min_shared=2` on the active core is the recommended object.
-
-## Open modeling choices (for analysis)
-- **Author threshold** for "active" (5 vs 10) — trades graph size vs density.
-- **min_shared** edge threshold (1 vs 2) — trades connectivity vs robustness.
-- **Hub agents**: a few agents post across many submolts; decide whether to cap
-  or down-weight their contribution to edges.
+The active core grew from 60 → **533 nodes** with the full scrape — large and
+connected enough for robust configuration-model null testing.
 
 ## Reproduce
 ```bash
 source .venv/bin/activate
-python scripts/scrape_balanced.py --submolts 12000 --quota 100
-python scripts/scrape_depth.py --min-posts 5 --quota 800
+bash scripts/launch_mega.sh          # overnight; stop with pkill -f mega_worker.py
+python scripts/merge_raw.py          # -> data/raw/posts_master.jsonl
 python scripts/build_tables.py
+python scripts/build_shared_agent_graph.py --min-shared 1 --tag master
 python scripts/build_shared_agent_graph.py --min-shared 2 --tag full
 python scripts/build_shared_agent_graph.py --min-shared 2 --min-authors 5 --tag core
 python scripts/dataset_report.py
 ```
+
+## Open modeling choices (for analysis)
+- **Author threshold** for "active" (5 vs 10) — graph size vs density.
+- **min_shared** edge cutoff (1 = includes single-agent/spam edges; ≥2 robust).
+- **Hub/spam agents**: a few agents post across hundreds of submolts (projection
+  clique-inflation); weight by `shared` and/or threshold to control.

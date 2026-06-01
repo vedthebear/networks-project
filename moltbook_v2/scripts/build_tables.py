@@ -37,7 +37,10 @@ def submolt_name(p):
 
 def main():
     TAB.mkdir(parents=True, exist_ok=True)
-    posts_path = RAW / "posts_balanced.jsonl"
+    # Prefer the merged master (full mega-scrape); fall back to the balanced file.
+    posts_path = RAW / "posts_master.jsonl"
+    if not posts_path.exists():
+        posts_path = RAW / "posts_balanced.jsonl"
     rows = []
     seen = set()
     for line in posts_path.open():
