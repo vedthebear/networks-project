@@ -36,10 +36,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--min-shared", type=int, default=2,
                     help="min agents shared for an edge (2 reduces noise from one-off crossovers)")
+    ap.add_argument("--min-authors", type=int, default=0,
+                    help="keep only submolts with >= this many distinct authors. "
+                         "Use 5 for the analyzable 'active core' graph; 0 keeps all submolts.")
+    ap.add_argument("--tag", default="",
+                    help="suffix for output files, e.g. --tag core -> shared_agent_edges_core.csv")
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    suffix = f"_{args.tag}" if args.tag else ""
 
     mem = pd.read_csv(TAB / "membership.csv")
+    # Optionally restrict to active submolts (>= min_authors distinct authors).
+    if args.min_authors > 0:
+        author_counts = mem.groupby("submolt")["agent"].nunique()
+        keep = set(author_counts[author_counts >= args.min_authors].index)
+        mem = mem[mem.submolt.isin(keep)]
+        print(f"filtered to {len(keep)} submolts with >= {args.min_authors} authors")
     # agent -> set of submolts ; submolt -> set of agents
     sub_agents = defaultdict(set)
     for agent, submolt in zip(mem.agent, mem.submolt):
@@ -69,7 +81,7 @@ def main():
         rows.append({"src": a, "dst": b, "shared": sh, "jaccard": jac})
 
     edges = pd.DataFrame(rows)
-    edges.to_csv(OUT / "shared_agent_edges.csv", index=False)
+    edges.to_csv(OUT / f"shared_agent_edges{suffix}.csv", index=False)
 
     # node metrics
     clustering = nx.clustering(G, weight="weight")
@@ -83,7 +95,7 @@ def main():
             "clustering": clustering.get(n, 0.0),
         })
     nodes = pd.DataFrame(node_rows).sort_values("degree", ascending=False)
-    nodes.to_csv(OUT / "shared_agent_nodes.csv", index=False)
+    nodes.to_csv(OUT / f"shared_agent_nodes{suffix}.csv", index=False)
 
     # summary stats
     stats = {
@@ -101,7 +113,7 @@ def main():
         deg = dict(G.degree())
         stats["max_degree"] = max(deg.values())
         stats["mean_degree"] = sum(deg.values()) / len(deg)
-    (OUT / "shared_agent_stats.json").write_text(json.dumps(stats, indent=2))
+    (OUT / f"shared_agent_stats{suffix}.json").write_text(json.dumps(stats, indent=2))
 
     print("=== SHARED-AGENT SUBMOLT GRAPH ===")
     for k, v in stats.items():
