@@ -1,0 +1,6 @@
+# Raw + large derived data are not committed; reproduce via scripts.
+data/raw/
+data/tables/
+graphs/
+*.jsonl
+*.cursor
