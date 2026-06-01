@@ -1,8 +1,8 @@
 # Project Status — Networks Project (Reddit Side)
 
-**Last Updated:** 2026-05-28  
-**Current Focus:** RQ1 ✅, RQ4 ✅; RQ2 retired, RQ3 parked; RQ5 is next  
-**Next Action:** Plan and implement RQ5 — reciprocity + logistic regression (consumes RQ4 k-core CSV; computes origin score directly) + timestamp gap. First resolve the flagged RQ5 sentiment predictor.
+**Last Updated:** 2026-05-31  
+**Current Focus:** RQ5 ✅ COMPLETE — all active RQs done (RQ1, RQ4, RQ5)  
+**Next Action:** Project analysis phase complete. Remaining work is write-up/synthesis (and any optional revival of parked RQ3 — directed role assortativity).
 
 ---
 
@@ -15,7 +15,7 @@
 | ~~RQ2~~ | ~~Relay/gatekeeper node identification~~ | ❌ Retired — RQ1 showed diffusion is degree-explained (see Decision Points) |
 | ~~RQ3~~ | ~~Sender/receiver role asymmetry~~ | ⏸ Parked → Future Interests (sentiment angle not comparison-valid; rest likely degree-explained) |
 | RQ4 | Global position vs. local clustering | ✅ Complete — clustering 5× null; within-core bridging (ρ=−0.15); modest rich club |
-| RQ5 | Reciprocity prediction *(depends on RQ4; computes origin score directly)* | ⏳ Not Started (**next**) |
+| RQ5 | Reciprocity prediction *(depends on RQ4; computes origin score directly)* | ✅ Complete — reciprocity 12× null (p<0.002); role-complementarity drives reciprocation; k-core suppresses it beyond degree (AUC 0.88) |
 
 ---
 
@@ -75,12 +75,16 @@ Parked because its only null-beatable angle (sentiment-stratified role consisten
 - [x] Documentation (full report + analysis + commentary) → `docs/rq4/README.md`
 - [x] ~~Sentiment by core shell~~ — REMOVED (NLP not comparison-valid; see Comparison Boundary in research.md)
 
-### RQ5 — Reciprocity *(start only after RQ4 k-core CSV confirmed; origin score computed inside RQ5)*
-- [ ] Global and per-node reciprocity
-- [ ] Logistic regression on `is_reciprocated`
-- [ ] Timestamp gap analysis
-- [ ] Figures → `figures/rq5/`
-- [ ] Documentation → `docs/rq5/README.md`
+### RQ5 — Reciprocity ✅ COMPLETE
+- [x] Component 1: global reciprocity (0.196) + per-node reciprocity + reciprocity-ratio distribution (median 0.57); NLP removed
+- [x] Global reciprocity vs. 500-graph config-model null → 0.196 vs 0.016, ~12× null, p<0.002 (project's strongest null separation)
+- [x] Component 2: origin scores + edge table (137,821 edges) + statsmodels Logit (7 structural predictors) → pseudo-R²=0.34, AUC=0.88
+- [x] **Findings:** role complementarity drives reciprocation (origin_tgt OR=3.1, origin_src OR=0.28); k-core suppresses reciprocity *beyond degree* (OR=0.63, p=5e-74) — echoes RQ4 bridging; edge weight strongly positive (OR=2.7)
+- [x] Component 3: timestamp gap (median lag 111 days, 10.5% within 1 day) + initiator cross-tab (sender-types initiate 58%; core nodes respond more)
+- [x] 3 figures → `figures/rq5/`
+- [x] 6 metric CSVs → `rq5_node_reciprocity`, `rq5_null_reciprocity`, `rq5_edge_features`, `rq5_logit_coefficients`, `rq5_timestamp_gaps`, `rq5_global_stats`
+- [x] Documentation → `docs/rq5/README.md`
+- [x] Added `statsmodels` to `requirements.txt`
 
 ---
 
@@ -102,6 +106,9 @@ Parked because its only null-beatable angle (sentiment-stratified role consisten
 | 2026-05-28 | Removed "sentiment by core shell" from RQ4 (NLP not comparison-valid); RQ4 now fully structural | `reddit/research.md`, `reddit/STATUS.md` |
 | 2026-05-28 | RQ4 complete: k-core + clustering + Spearman + rich-club, 500-graph null, 4 figures, 4 CSVs. Findings: clustering 5.3× null (p<0.002); aggregate ρ=+0.78 mostly mechanical but beats null; within-core ρ=−0.15 (bridging); modest rich club | `reddit/rq4_core_periphery.py`, `reddit/figures/rq4/`, `reddit/data/processed/metrics/rq4_*.csv` |
 | 2026-05-28 | RQ4 documentation (full report + analysis + commentary on all results) | `reddit/docs/rq4/README.md` |
+| 2026-05-31 | RQ5 planning: removed NLP/sentiment predictor; trimmed Component 1 to 2 metrics; chose statsmodels + kept initiator cross-tab | `reddit/research.md`, `reddit/STATUS.md` |
+| 2026-05-31 | RQ5 complete: reciprocity + null (0.196 vs 0.016, ~12× null), logistic regression (AUC 0.88, role complementarity + beyond-degree k-core suppression), timestamp gap (median 111 days), 3 figures, 6 CSVs | `reddit/rq5_reciprocity.py`, `reddit/figures/rq5/`, `reddit/data/processed/metrics/rq5_*.csv` |
+| 2026-05-31 | RQ5 documentation (full report + analysis + commentary) | `reddit/docs/rq5/README.md` |
 
 ---
 
@@ -113,5 +120,4 @@ Parked because its only null-beatable angle (sentiment-stratified role consisten
 
 ## Blocked / Needs Attention
 
-- **RQ5 sentiment predictor — pending discussion.** RQ5's "fraction of positive-sentiment links" predictor depends on NLP data and violates the comparison boundary. Decision deferred to the RQ5 discussion. *(RQ4's sentiment-by-shell piece is now resolved — removed.)*
-- Otherwise nothing blocked. RQ4 (core-periphery) is the immediate next step — it also produces the k-core CSV RQ5 depends on.
+Nothing blocked. RQ5 sentiment predictor resolved — removed (same decision as RQ4's sentiment-by-shell; violates Comparison Boundary). RQ5 is fully structural: 6 predictors, all comparison-valid.

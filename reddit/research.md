@@ -220,7 +220,8 @@ Build an edge-level table where each row is one directed edge. Outcome: `is_reci
 | In-degree of target | Receiver popularity |
 | K-core number of both nodes | Structural embeddedness |
 | Origin score of both nodes | Sender/receiver role |
-| Fraction of positive-sentiment links | Relationship character |
+
+> **Sentiment predictor removed.** An earlier draft included "fraction of positive-sentiment links" as a predictor. It depends on `LINK_SENTIMENT`, an NLP-derived Reddit-only feature Moltbook lacks. It was removed for the same reason as RQ4's "sentiment by core shell" — it violates the Comparison Boundary and cannot carry a cross-platform claim. RQ5 is now fully structural: all six predictors are available on both platforms.
 
 Output: coefficients showing direction and magnitude of each feature's effect, controlling for all others. Tests whether structural position predicts reciprocity independently of activity level.
 
