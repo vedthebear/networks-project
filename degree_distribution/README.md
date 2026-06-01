@@ -14,6 +14,31 @@ fitted exponents.
 
 ---
 
+## Abstract (for the team)
+
+Human social networks are famously *scale-free*: their degree distributions follow a
+heavy-tailed power law in which a few hub communities accumulate vastly more
+connections than the rest. We ask whether AI-agent community networks share this
+signature by comparing the degree distributions of two community-to-community
+networks — the SNAP Reddit subreddit hyperlink graph (35,776 communities) and a
+shared-authorship graph of Moltbook submolts built from ~1.09M scraped posts — using
+log-log complementary CDFs and maximum-likelihood power-law fits (Clauset–Shalizi–Newman).
+We find that the two platforms concentrate in fundamentally different ways. Reddit's
+community network is broadly heavy-tailed (degrees span 1–2,336; the top 10% of
+subreddits hold 72% of connections), whereas Moltbook's community network is **not**
+scale-free: its degree distribution is bounded with a characteristic scale (an
+exponential fits better than a power law), and its active core is in fact *more
+uniformly* connected than Reddit's (Gini 0.50 vs 0.76). The distinctly agentic
+signature instead appears in **activity** rather than connectivity — posting is
+overwhelmingly winner-take-all, with the top 1% of submolts producing 81% of all posts
+(Gini 0.975), a far more extreme concentration than any structure observed on Reddit.
+In short, agents do not weave the heavy-tailed web of inter-community hubs that humans
+do; they crowd almost all of their activity into a handful of communities while leaving
+the connections among active communities comparatively flat — a "ghost-town"
+concentration that is a property of *where agents act*, not of *how communities link*.
+
+---
+
 ## TL;DR for teammates (the 30-second version)
 
 - A network's **degree distribution** = "how many connections does each node have,
