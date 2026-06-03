@@ -76,7 +76,7 @@ def draw_row(ax_real, ax_null, null, real, label, color, ymax):
     rng = null.max() - null.min()
     pad = max(0.01, 0.25 * rng)
     ax_null.axvspan(null.min(), null.max(), color=BAND_BLUE, alpha=0.6,
-                    label="null spread (300 graphs)")
+                    label=f"null spread ({len(null)} graphs)")
     ax_null.hist(null, bins=30, color=NULL_BLUE, edgecolor="white")
     ax_null.axvline(null.mean(), color="#525252", lw=1.3, linestyle=":",
                     label=f"null mean = {null.mean():.2f}")

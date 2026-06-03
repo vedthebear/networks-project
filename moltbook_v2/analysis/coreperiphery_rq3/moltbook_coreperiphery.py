@@ -43,7 +43,7 @@ TAB = HERE.parents[1] / "data" / "tables"
 RESULTS = HERE / "results"; FIGS = HERE / "figures"
 PRIMARY_MIN_SHARED = 3      # primary threshold (full graph, density ~Reddit-like)
 SWEEP = [2, 3, 5, 10]
-N_NULL = 300
+N_NULL = 500
 SEED = 168
 RICHCLUB_CI = (2.5, 97.5)
 

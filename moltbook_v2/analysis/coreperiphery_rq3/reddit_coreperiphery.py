@@ -23,7 +23,7 @@ from scipy.stats import spearmanr
 HERE = Path(__file__).resolve().parent
 TSV = HERE.parents[2] / "degree_distribution" / "data" / "reddit" / "soc-redditHyperlinks-body.tsv"
 RESULTS = HERE / "results"
-N_NULL = 300
+N_NULL = 500
 SEED = 168
 
 def build_reddit_undirected():
