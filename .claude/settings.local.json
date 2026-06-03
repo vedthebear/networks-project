@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\Riley\\\\Desktop\\\\networks-project\\\\data\")",
+      "Bash(dir \"C:\\\\Users\\\\Riley\\\\Desktop\\\\networks-project\\\\data\\\\tables\")",
+      "Bash(git ls-tree *)",
+      "Bash(git fetch *)",
+      "Bash(python analyze_topic_diffusion.py --data data --top-n 20)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(grep -E \"\\\\.py$|\\\\.md$|\\\\.txt$|\\\\.sh$\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(grep \"\\\\.py$\")",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(mv fetch_data.py archive/)"
+    ]
+  }
+}

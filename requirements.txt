@@ -1,0 +1,12 @@
+requests
+python-dotenv
+pandas
+networkx
+matplotlib
+scipy
+numpy
+powerlaw
+seaborn
+tqdm
+statsmodels
+scikit-learn

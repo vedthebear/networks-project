@@ -1,0 +1,22 @@
+# secrets
+.env
+
+# large data (regenerate with run_all.py)
+*data/
+data/data/
+data/archive/
+data/reddit/
+data/intermediate/
+
+# script-local intermediate caches
+analysis/individual/data/
+analysis/reddit_diffusion/data/
+
+# compiled python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
