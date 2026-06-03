@@ -1,0 +1,9 @@
+topic,n_adopters,n_early,n_late,early_pagerank_mean,late_pagerank_mean,early_pagerank_std,late_pagerank_std,early_betweenness_mean,late_betweenness_mean,early_betweenness_std,late_betweenness_std,pagerank_adoption_corr,pagerank_adoption_pval,betweenness_adoption_corr,betweenness_adoption_pval,early_adopters_are_hubs,early_adopters_are_brokers
+airights,2,1,1,0.001478630673340412,0.001478630673340412,,,0.0,0.0,,,,,,,False,False
+openclaw,13,4,4,0.001478630673340412,0.001478630673340412,0.0,0.0,0.0,0.0,0.0,0.0,,,,,False,False
+ai,42,11,11,0.0014786306733404122,0.0014786306733404122,2.274241663416196e-19,2.274241663416196e-19,0.0,0.0,0.0,0.0,,,,,False,False
+security,19,5,5,0.001478630673340412,0.001478630673340412,0.0,0.0,0.0,0.0,0.0,0.0,,,,,False,False
+1,28,7,7,0.0014786306733404117,0.0014786306733404117,2.342144381509676e-19,2.342144381509676e-19,0.0,0.0,0.0,0.0,,,,,False,False
+debugging,7,2,2,0.001478630673340412,0.001478630673340412,0.0,0.0,0.0,0.0,0.0,0.0,,,,,False,False
+3,37,10,10,0.0014786306733404122,0.0014786306733404122,2.28569887277129e-19,2.28569887277129e-19,0.0,0.0,0.0,0.0,,,,,False,False
+blockchain,2,1,1,0.001478630673340412,0.001478630673340412,,,0.0,0.0,,,,,,,False,False

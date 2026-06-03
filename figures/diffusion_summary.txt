@@ -1,0 +1,70 @@
+WHO DRIVES INFORMATION FLOW? TOPIC DIFFUSION ANALYSIS
+======================================================================
+
+Data source: v2_csv
+
+METHODOLOGY
+----------------------------------------
+  Reddit:   directed edge A -> B when a post in subreddit A
+            contains a hyperlink to subreddit B.
+  Moltbook: directed edge A -> B when submolt A is the first
+            community to adopt a hashtag later seen in submolt B.
+  Edge weight = number of hashtags where A preceded B.
+
+DATASET
+----------------------------------------
+  Hashtags analyzed:           2,201
+  Submolts in diffusion graph: 213
+  Directed submolt edges:      7,985
+  Agents in reply graph:       0
+  Avg submolts per hashtag:    3.5
+  Avg spread time (hrs):       1097.9
+
+TOP SUBMOLTS BY PAGERANK (most influential in diffusion)
+----------------------------------------
+  mbc-20                               PR=0.07109  hub=0.06769  bet=0.03542
+  builds                               PR=0.05681  hub=0.00692  bet=0.03590
+  general                              PR=0.04673  hub=0.06787  bet=0.14579
+  geopolitics                          PR=0.04244  hub=0.00037  bet=0.02592
+  agentdev                             PR=0.03808  hub=0.00006  bet=0.00285
+  mbc20                                PR=0.03787  hub=0.04946  bet=0.00472
+  aipublicworks                        PR=0.03522  hub=0.00001  bet=0.00224
+  agentfinance                         PR=0.03331  hub=0.00558  bet=0.01388
+  ai                                   PR=0.03147  hub=0.03160  bet=0.02318
+  jokes                                PR=0.02673  hub=0.00134  bet=0.02381
+  philosophy                           PR=0.02333  hub=0.00478  bet=0.02009
+  shitposts                            PR=0.02284  hub=0.00000  bet=0.00000
+  agents                               PR=0.02157  hub=0.00948  bet=0.01280
+  crypto                               PR=0.01919  hub=0.02394  bet=0.01911
+  aisafety                             PR=0.01742  hub=0.00102  bet=0.05386
+
+TOP TOPIC ORIGINATORS (hub score)
+----------------------------------------
+  creativeprojects                     hub=0.20359  out_deg= 163  out_weight= 3063
+  general                              hub=0.06787  out_deg= 158  out_weight= 1299
+  mbc-20                               hub=0.06769  out_deg=  74  out_weight= 1291
+  aithoughts                           hub=0.06088  out_deg=  65  out_weight=  784
+  mbc20                                hub=0.04946  out_deg=  19  out_weight=  549
+  programming                          hub=0.04692  out_deg=  58  out_weight=  538
+  tools                                hub=0.04595  out_deg=  76  out_weight=  597
+  openclaw                             hub=0.04384  out_deg=  57  out_weight=  529
+  all                                  hub=0.03649  out_deg=  16  out_weight=  559
+  builders                             hub=0.03354  out_deg= 144  out_weight=  844
+  cryptocurrency                       hub=0.03171  out_deg=  26  out_weight=  506
+  ai                                   hub=0.03160  out_deg=  57  out_weight=  421
+  quantmolt                            hub=0.02516  out_deg= 108  out_weight=  614
+  crypto                               hub=0.02394  out_deg=  30  out_weight=  279
+  agents                               hub=0.00948  out_deg=  64  out_weight=  225
+
+CROSS-LEVEL
+----------------------------------------
+  Out-weight vs In-weight Spearman r = 0.539  (p=0.000)
+  -> Same submolts dominate both sending and receiving topics.
+
+FASTEST-SPREADING HASHTAGS
+----------------------------------------
+  #20260527_213112                   2 submolts  spread=0.0h  origin=mbc-20
+  #nano                              3 submolts  spread=0.2h  origin=xno
+  #7805                              2 submolts  spread=1.6h  origin=general
+  #685                               2 submolts  spread=1.6h  origin=tools
+  #tout                              3 submolts  spread=2.1h  origin=builds
