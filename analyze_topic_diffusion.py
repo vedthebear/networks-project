@@ -11,27 +11,24 @@ Reddit Analogue:
   nodes and draws a directed edge A → B when a post in A hyperlinks to B,
   then computes PageRank / betweenness to rank community influence.
 
-  Here we have no explicit cross-community hyperlinks, so we use
-  HASHTAG FIRST-ADOPTION as the directed edge:
+  Here we use HASHTAG FIRST-ADOPTION as the directed edge:
     - For each hashtag H, find the first timestamp each submolt used H.
     - Draw a directed edge A → B if submolt A adopted H before submolt B.
-    - Edge weight  = number of hashtags where A preceded B.
-  This is a temporal, content-based signal of information diffusion —
-  the same information flowing from one community to another, just
-  via topic adoption rather than an explicit URL.
+    - Edge weight = number of hashtags where A preceded B.
 
-Two levels of analysis:
-  1. Submolt → Submolt  (community influence, analogous to Reddit)
-  2. Agent   → Agent    (individual influence, via reply graph)
+Supports two data formats automatically:
+  v2 (preferred): data/data/tables/posts.csv  +  data/graphs/shared_agent_edges_core.csv
+  v1 (fallback):  data/posts.json  +  data/comments.json  +  data/agent_reply_edges.csv
 
 Outputs (figures/):
-  submolt_diffusion_edges.csv     -- directed submolt graph edge list
+  submolt_diffusion_edges.csv     -- directed submolt->submolt edge list
   submolt_centrality.csv          -- PageRank, betweenness, HITS, degree per submolt
-  agent_centrality.csv            -- PageRank, betweenness per agent
-  topic_first_touch.csv           -- per hashtag: which submolt adopted first, spread time
-  submolt_influence_ranking.png   -- top submolts by PageRank (bar chart)
-  topic_diffusion_network.png     -- submolt diffusion network (node size = PageRank)
-  diffusion_summary.txt           -- narrative comparison summary
+  agent_centrality.csv            -- PageRank, betweenness per agent (if reply data exists)
+  topic_first_touch.csv           -- per hashtag: first submolt, spread time
+  submolt_influence_ranking.png   -- bar charts: top submolts by PageRank + hub score
+  topic_diffusion_network.png     -- network diagram (node size=PageRank, color=hub score)
+  hashtag_adoption_curves.png     -- cumulative submolt adoption over time per topic
+  diffusion_summary.txt           -- narrative summary
 """
 
 import argparse
@@ -39,7 +36,7 @@ import json
 import re
 import warnings
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import timezone
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -50,142 +47,210 @@ import pandas as pd
 from scipy.stats import spearmanr
 
 warnings.filterwarnings("ignore", category=UserWarning)
-
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 HASHTAG_RE = re.compile(r"#(\w+)", re.UNICODE)
 
 
 # ---------------------------------------------------------------------------
-# Utilities
+# Data loading — auto-detects v2 CSV or v1 JSON
 # ---------------------------------------------------------------------------
 
-def parse_ts(t):
-    """Best-effort timestamp parser; returns timezone-aware datetime or None."""
-    if t is None or (isinstance(t, float) and t != t):
-        return None
-    if isinstance(t, (int, float)):
-        try:
-            return datetime.fromtimestamp(t, tz=timezone.utc)
-        except (OSError, ValueError, OverflowError):
-            return None
-    if isinstance(t, str):
-        s = t.strip()
-        if not s:
-            return None
-        try:
-            return datetime.fromisoformat(s.replace("Z", "+00:00"))
-        except ValueError:
-            for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
-                try:
-                    return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
-                except ValueError:
-                    continue
+def load_posts_df(data_dir: Path) -> tuple[pd.DataFrame, str]:
+    """
+    Return (posts_df, source_label).
+    posts_df always has columns: submolt, created_at, title, content
+    Tries v2 CSV paths first, falls back to v1 JSON.
+    """
+    # v2: data/data/tables/posts.csv  (moltbook_v2 files land here)
+    for csv_rel in ("data/tables/posts.csv", "tables/posts.csv"):
+        csv_path = data_dir / csv_rel
+        if csv_path.exists():
+            print(f"  Loading v2 CSV: {csv_path}")
+            df = pd.read_csv(csv_path, dtype=str, low_memory=False)
+            # Normalise column names
+            df = df.rename(columns={"post_id": "id"})
+            if "content" not in df.columns:
+                df["content"] = ""
+            df["title"]   = df["title"].fillna("")
+            df["content"] = df["content"].fillna("")
+            return df, "v2_csv"
+
+    # v1: data/posts.json
+    json_path = data_dir / "posts.json"
+    if json_path.exists():
+        print(f"  Loading v1 JSON: {json_path}")
+        raw = json.load(open(json_path, encoding="utf-8"))
+        rows = []
+        for p in raw:
+            author = p.get("author_id") or (p.get("author") or {}).get("name") or ""
+            submolt = (p.get("submolt") or p.get("submolt_name") or
+                       (p.get("submolt_obj") or {}).get("name") or "")
+            rows.append({
+                "id":         p.get("id", ""),
+                "author":     author,
+                "submolt":    submolt,
+                "created_at": p.get("created_at", ""),
+                "title":      p.get("title") or "",
+                "content":    p.get("content") or "",
+            })
+        return pd.DataFrame(rows), "v1_json"
+
+    raise SystemExit(
+        f"No posts data found under {data_dir}.\n"
+        "Expected: data/data/tables/posts.csv  OR  data/posts.json"
+    )
+
+
+def load_comments_df(data_dir: Path) -> pd.DataFrame:
+    """Load v1 comments.json; returns empty DataFrame if not available (v2 has no comments)."""
+    path = data_dir / "comments.json"
+    if not path.exists():
+        return pd.DataFrame(columns=["submolt", "created_at", "title", "content"])
+
+    raw = json.load(open(path, encoding="utf-8"))
+
+    def _flatten(lst):
+        out = []
+        for c in lst:
+            replies = c.pop("replies", None) or []
+            out.append(c)
+            out.extend(_flatten(replies))
+        return out
+
+    raw = _flatten(raw)
+    rows = []
+    for c in raw:
+        author = c.get("author_id") or (c.get("author") or {}).get("id") or ""
+        rows.append({
+            "id":         c.get("id", ""),
+            "post_id":    c.get("post_id", ""),
+            "author":     author,
+            "created_at": c.get("created_at", ""),
+            "title":      "",
+            "content":    c.get("content") or "",
+        })
+    return pd.DataFrame(rows)
+
+
+def load_shared_agent_graph(data_dir: Path) -> nx.Graph | None:
+    """
+    Load the pre-built shared-agent undirected submolt graph (v2 only).
+    Returns None if not available.
+    """
+    for rel in ("graphs/shared_agent_edges_core.csv",
+                "../graphs/shared_agent_edges_core.csv"):
+        p = data_dir / rel
+        if p.exists():
+            df = pd.read_csv(p)
+            G = nx.from_pandas_edgelist(df, source="src", target="dst",
+                                        edge_attr=["shared", "jaccard"],
+                                        create_using=nx.Graph)
+            print(f"  Loaded pre-built shared-agent graph: "
+                  f"{G.number_of_nodes()} submolts, {G.number_of_edges()} edges")
+            return G
     return None
 
 
-def extract_hashtags(text):
-    return [tag.lower() for tag in HASHTAG_RE.findall(text or "")]
-
-
-def get_post_submolt(post):
-    return post.get("submolt") or (post.get("submolt_obj") or {}).get("name")
-
-
-def get_author(obj):
-    return obj.get("author_id") or (obj.get("author") or {}).get("id")
+def load_reply_df(data_dir: Path) -> pd.DataFrame | None:
+    """Load agent_reply_edges.csv; returns None if not available."""
+    path = data_dir / "agent_reply_edges.csv"
+    if path.exists():
+        return pd.read_csv(path)
+    return None
 
 
 # ---------------------------------------------------------------------------
-# Step 1: Build hashtag → submolt first-touch mapping
+# Hashtag first-touch (vectorized for 1M+ rows)
 # ---------------------------------------------------------------------------
 
-def build_first_touch(posts, comments):
+def build_first_touch(posts_df: pd.DataFrame,
+                      comments_df: pd.DataFrame | None = None) -> dict:
     """
-    Returns:
-      first_touch: dict { hashtag -> { submolt -> earliest datetime } }
-      topic_rows:  list of dicts with per-hashtag metadata
+    For each hashtag, find the earliest timestamp each submolt used it.
+    Returns: { hashtag -> { submolt -> datetime (tz-aware) } }
+    Uses vectorised pandas operations — handles 1M+ rows efficiently.
     """
-    # Map post_id → submolt so we can tag comments
-    post_submolt_map = {}
-    for p in posts:
-        pid = p.get("id")
-        s = get_post_submolt(p)
-        if pid and s:
-            post_submolt_map[pid] = s
+    frames = [posts_df]
+    if comments_df is not None and not comments_df.empty:
+        frames.append(comments_df)
 
-    first_touch = defaultdict(dict)   # hashtag -> {submolt: datetime}
+    df = pd.concat(frames, ignore_index=True)
+    df = df[df["submolt"].notna() & (df["submolt"] != "")].copy()
 
-    def record(tags, submolt, ts):
-        if not (submolt and ts and tags):
-            return
-        for tag in tags:
-            existing = first_touch[tag].get(submolt)
-            if existing is None or ts < existing:
-                first_touch[tag][submolt] = ts
+    # Parse timestamps once
+    df["ts"] = pd.to_datetime(df["created_at"], utc=True, errors="coerce")
+    df = df.dropna(subset=["ts"])
 
-    for p in posts:
-        submolt = get_post_submolt(p)
-        ts = parse_ts(p.get("created_at"))
-        text = (p.get("title") or "") + " " + (p.get("content") or "")
-        record(extract_hashtags(text), submolt, ts)
+    # Extract hashtags (from title + content combined)
+    text = df["title"].fillna("") + " " + df["content"].fillna("")
+    df["hashtags"] = text.str.findall(r"#(\w+)", re.IGNORECASE)
+    df["hashtags"] = df["hashtags"].apply(
+        lambda tags: list({t.lower() for t in tags}) if isinstance(tags, list) else []
+    )
 
-    for c in comments:
-        submolt = post_submolt_map.get(c.get("post_id"))
-        ts = parse_ts(c.get("created_at"))
-        record(extract_hashtags(c.get("content") or ""), submolt, ts)
+    # Explode so one row per (submolt, ts, hashtag)
+    df = df[["submolt", "ts", "hashtags"]].explode("hashtags").dropna(subset=["hashtags"])
+    df = df[df["hashtags"].str.len() > 0]
+
+    if df.empty:
+        return {}
+
+    # First touch per (hashtag, submolt)
+    ft = (df.groupby(["hashtags", "submolt"])["ts"]
+            .min()
+            .reset_index()
+            .rename(columns={"hashtags": "hashtag"}))
+
+    # Build result dict
+    first_touch = defaultdict(dict)
+    for row in ft.itertuples(index=False):
+        ts = row.ts
+        if hasattr(ts, "to_pydatetime"):
+            ts = ts.to_pydatetime()
+        first_touch[row.hashtag][row.submolt] = ts
 
     return dict(first_touch)
 
 
 # ---------------------------------------------------------------------------
-# Step 2: Build submolt → submolt directed diffusion graph
+# Submolt diffusion graph
 # ---------------------------------------------------------------------------
 
-def build_submolt_diffusion_graph(first_touch, min_submolts=2):
+def build_submolt_diffusion_graph(first_touch: dict,
+                                  min_submolts: int = 2) -> tuple:
     """
-    For each hashtag adopted by >= min_submolts communities, draw a directed
-    edge from every earlier-adopting submolt to every later-adopting submolt.
-
-    Edge weight = number of hashtags where A consistently preceded B.
-
-    Also returns a DataFrame of per-topic metadata.
+    Directed edge A → B for each hashtag adopted by A before B.
+    Weight = number of hashtags where A preceded B.
     """
-    edge_weights = defaultdict(int)   # (src, dst) -> count of hashtags
+    edge_weights = defaultdict(int)
     topic_rows = []
 
     for tag, submolt_times in first_touch.items():
         if len(submolt_times) < min_submolts:
             continue
-
         ordered = sorted(submolt_times.items(), key=lambda x: x[1])
         first_sub, first_time = ordered[0]
         last_time = ordered[-1][1]
 
+        spread_secs = (last_time - first_time).total_seconds()
         topic_rows.append({
-            "hashtag":        tag,
-            "first_submolt":  first_sub,
-            "first_seen":     first_time.isoformat(),
-            "n_submolts":     len(ordered),
-            "spread_hours":   (last_time - first_time).total_seconds() / 3600,
+            "hashtag":       tag,
+            "first_submolt": first_sub,
+            "first_seen":    first_time.isoformat(),
+            "n_submolts":    len(ordered),
+            "spread_hours":  spread_secs / 3600,
         })
 
-        # Every earlier submolt gets a directed edge to every later one
         for i, (src, _) in enumerate(ordered):
             for dst, _ in ordered[i + 1:]:
                 edge_weights[(src, dst)] += 1
 
-    # Assemble edge list DataFrame
-    edge_rows = [
-        {"src": src, "dst": dst, "weight": w}
-        for (src, dst), w in edge_weights.items()
-    ]
+    edge_rows = [{"src": s, "dst": d, "weight": w}
+                 for (s, d), w in edge_weights.items()]
     edges_df = pd.DataFrame(edge_rows) if edge_rows else pd.DataFrame(
         columns=["src", "dst", "weight"])
 
-    # Build NetworkX graph
     G = nx.DiGraph()
     for _, row in edges_df.iterrows():
         G.add_edge(row["src"], row["dst"], weight=row["weight"])
@@ -194,22 +259,15 @@ def build_submolt_diffusion_graph(first_touch, min_submolts=2):
 
 
 # ---------------------------------------------------------------------------
-# Step 3a: Submolt centrality
+# Centrality
 # ---------------------------------------------------------------------------
 
-def compute_submolt_centrality(G):
-    """
-    PageRank   -- which submolts receive topics from influential communities
-    Betweenness -- which submolts bridge different topic-flow clusters
-    HITS hub   -- which submolts originate topics that flow to many others
-    HITS auth  -- which submolts are destinations for many originators
-    In/out degree -- raw volume of influence sent/received
-    """
-    if G.number_of_nodes() == 0:
+def compute_submolt_centrality(G: nx.DiGraph) -> pd.DataFrame:
+    n = G.number_of_nodes()
+    if n == 0:
         return pd.DataFrame()
 
-    n = G.number_of_nodes()
-    print(f"  Submolt diffusion graph: {n} submolts, {G.number_of_edges()} edges")
+    print(f"  Diffusion graph: {n:,} submolts, {G.number_of_edges():,} edges")
 
     pr  = nx.pagerank(G, weight="weight")
     bet = nx.betweenness_centrality(G, k=min(200, n), weight="weight", seed=42)
@@ -217,68 +275,50 @@ def compute_submolt_centrality(G):
     try:
         hubs, auths = nx.hits(G, max_iter=1000)
     except nx.PowerIterationFailedConvergence:
-        print("  HITS did not converge; setting hub/authority to 0.")
+        print("  HITS did not converge — setting hub/authority to 0.")
         hubs  = {v: 0.0 for v in G.nodes()}
         auths = {v: 0.0 for v in G.nodes()}
 
     in_w  = dict(G.in_degree(weight="weight"))
     out_w = dict(G.out_degree(weight="weight"))
 
-    rows = []
-    for node in G.nodes():
-        rows.append({
-            "submolt":            node,
-            "pagerank":           pr.get(node, 0),
-            "betweenness":        bet.get(node, 0),
-            "hub_score":          hubs.get(node, 0),
-            "authority_score":    auths.get(node, 0),
-            "in_degree":          G.in_degree(node),
-            "out_degree":         G.out_degree(node),
-            "in_weight":          in_w.get(node, 0),
-            "out_weight":         out_w.get(node, 0),
-        })
+    rows = [{
+        "submolt":         n,
+        "pagerank":        pr.get(n, 0),
+        "betweenness":     bet.get(n, 0),
+        "hub_score":       hubs.get(n, 0),
+        "authority_score": auths.get(n, 0),
+        "in_degree":       G.in_degree(n),
+        "out_degree":      G.out_degree(n),
+        "in_weight":       in_w.get(n, 0),
+        "out_weight":      out_w.get(n, 0),
+    } for n in G.nodes()]
 
     return pd.DataFrame(rows).sort_values("pagerank", ascending=False).reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# Step 3b: Agent centrality
-# ---------------------------------------------------------------------------
-
-def compute_agent_centrality(reply_df):
-    """
-    Build the agent reply graph and compute PageRank + betweenness.
-    Agents with high PageRank are well-replied-to (hubs of discussion).
-    Agents with high betweenness bridge different conversation clusters.
-    """
-    agg = (reply_df
-           .groupby(["replier", "recipient"], as_index=False)["weight"]
-           .sum())
-    G = nx.from_pandas_edgelist(
-        agg, source="replier", target="recipient",
-        edge_attr="weight", create_using=nx.DiGraph,
-    )
+def compute_agent_centrality(reply_df: pd.DataFrame) -> tuple[pd.DataFrame, nx.DiGraph]:
+    agg = reply_df.groupby(["replier", "recipient"], as_index=False)["weight"].sum()
+    G   = nx.from_pandas_edgelist(agg, "replier", "recipient",
+                                  edge_attr="weight", create_using=nx.DiGraph)
     n = G.number_of_nodes()
     if n == 0:
         return pd.DataFrame(), G
 
-    print(f"  Agent reply graph: {n} agents, {G.number_of_edges()} edges")
-
+    print(f"  Agent reply graph: {n:,} agents, {G.number_of_edges():,} edges")
     pr  = nx.pagerank(G, weight="weight")
     bet = nx.betweenness_centrality(G, k=min(500, n), weight="weight", seed=42)
     in_w  = dict(G.in_degree(weight="weight"))
     out_w = dict(G.out_degree(weight="weight"))
 
-    rows = [
-        {
-            "agent":       node,
-            "pagerank":    pr.get(node, 0),
-            "betweenness": bet.get(node, 0),
-            "in_weight":   in_w.get(node, 0),
-            "out_weight":  out_w.get(node, 0),
-        }
-        for node in G.nodes()
-    ]
+    rows = [{
+        "agent":       node,
+        "pagerank":    pr.get(node, 0),
+        "betweenness": bet.get(node, 0),
+        "in_weight":   in_w.get(node, 0),
+        "out_weight":  out_w.get(node, 0),
+    } for node in G.nodes()]
+
     df = pd.DataFrame(rows).sort_values("pagerank", ascending=False).reset_index(drop=True)
     return df, G
 
@@ -287,30 +327,25 @@ def compute_agent_centrality(reply_df):
 # Visualizations
 # ---------------------------------------------------------------------------
 
-def plot_submolt_ranking(cent_df, out_path, top_n=20):
-    """Horizontal bar chart: top submolts by PageRank."""
-    df = cent_df.head(top_n).iloc[::-1]   # reverse so highest is at top
-    if df.empty:
+def plot_submolt_ranking(cent_df: pd.DataFrame, out_path: Path, top_n: int = 20):
+    df_pr  = cent_df.head(top_n).iloc[::-1]
+    df_hub = cent_df.sort_values("hub_score", ascending=False).head(top_n).iloc[::-1]
+    if df_pr.empty:
         return
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, max(6, len(df) * 0.4)))
+    fig, axes = plt.subplots(1, 2, figsize=(16, max(6, top_n * 0.4)))
 
-    # PageRank
-    ax = axes[0]
-    bars = ax.barh(df["submolt"], df["pagerank"], color="steelblue", alpha=0.8)
-    ax.set_xlabel("PageRank (influence received from other submolts)")
-    ax.set_title(f"Top {top_n} Submolts by PageRank\n(analogous to Reddit subreddit authority)")
-    ax.grid(axis="x", alpha=0.3)
+    axes[0].barh(df_pr["submolt"], df_pr["pagerank"], color="steelblue", alpha=0.85)
+    axes[0].set_xlabel("PageRank")
+    axes[0].set_title(f"Top {top_n} Submolts by PageRank\n(topic influence received)")
+    axes[0].grid(axis="x", alpha=0.3)
 
-    # Hub score
-    ax = axes[1]
-    df_hub = cent_df.sort_values("hub_score", ascending=False).head(top_n).iloc[::-1]
-    ax.barh(df_hub["submolt"], df_hub["hub_score"], color="darkorange", alpha=0.8)
-    ax.set_xlabel("Hub score (HITS) — topics originate here and flow outward")
-    ax.set_title(f"Top {top_n} Submolts by Hub Score\n(topic originators)")
-    ax.grid(axis="x", alpha=0.3)
+    axes[1].barh(df_hub["submolt"], df_hub["hub_score"], color="darkorange", alpha=0.85)
+    axes[1].set_xlabel("HITS Hub Score")
+    axes[1].set_title(f"Top {top_n} Submolts by Hub Score\n(topic originators)")
+    axes[1].grid(axis="x", alpha=0.3)
 
-    fig.suptitle("Submolt Influence: Reddit Hyperlink Analogue via Hashtag Diffusion",
+    fig.suptitle("Submolt Influence via Hashtag Diffusion (Reddit Hyperlink Analogue)",
                  fontsize=13, fontweight="bold")
     fig.tight_layout()
     fig.savefig(out_path, dpi=150)
@@ -318,18 +353,11 @@ def plot_submolt_ranking(cent_df, out_path, top_n=20):
     print(f"  wrote {out_path}")
 
 
-def plot_diffusion_network(G, cent_df, out_path, top_n=30):
-    """
-    Network diagram of the submolt diffusion graph.
-    Node size  ∝ PageRank
-    Node color ∝ hub score (how much it originates vs receives topics)
-    Edge width ∝ weight (number of shared topics)
-    Only the top_n nodes by PageRank are shown to keep it legible.
-    """
+def plot_diffusion_network(G: nx.DiGraph, cent_df: pd.DataFrame,
+                           out_path: Path, top_n: int = 40):
     if G.number_of_nodes() == 0:
         return
 
-    # Subgraph: top N by pagerank
     top_nodes = set(cent_df.head(top_n)["submolt"].tolist())
     H = G.subgraph(top_nodes).copy()
     if H.number_of_nodes() == 0:
@@ -338,34 +366,29 @@ def plot_diffusion_network(G, cent_df, out_path, top_n=30):
     pr_map  = dict(zip(cent_df["submolt"], cent_df["pagerank"]))
     hub_map = dict(zip(cent_df["submolt"], cent_df["hub_score"]))
 
-    pos = nx.spring_layout(H, weight="weight", seed=42, k=2.5)
-
-    node_sizes  = [pr_map.get(v, 0) * 80000 + 300 for v in H.nodes()]
+    pos         = nx.spring_layout(H, weight="weight", seed=42, k=2.5)
+    node_sizes  = [pr_map.get(v, 0) * 80_000 + 200 for v in H.nodes()]
     hub_vals    = [hub_map.get(v, 0) for v in H.nodes()]
     norm        = mcolors.Normalize(vmin=min(hub_vals), vmax=max(hub_vals))
-    node_colors = [plt.cm.RdYlGn(norm(h)) for h in hub_vals]   # green=originator, red=receiver
+    node_colors = [plt.cm.RdYlGn(norm(h)) for h in hub_vals]
+    edge_ws     = [H[u][v]["weight"] for u, v in H.edges()]
+    max_w       = max(edge_ws) if edge_ws else 1
+    edge_widths = [0.5 + 4 * (w / max_w) for w in edge_ws]
 
-    edge_weights = [H[u][v]["weight"] for u, v in H.edges()]
-    max_w = max(edge_weights) if edge_weights else 1
-    edge_widths  = [1 + 4 * (w / max_w) for w in edge_weights]
-
-    fig, ax = plt.subplots(figsize=(14, 10))
+    fig, ax = plt.subplots(figsize=(16, 12))
     nx.draw_networkx_nodes(H, pos, node_size=node_sizes,
                            node_color=node_colors, alpha=0.85, ax=ax)
-    nx.draw_networkx_labels(H, pos, font_size=7, ax=ax)
-    nx.draw_networkx_edges(H, pos, width=edge_widths, alpha=0.4,
-                           arrows=True, arrowsize=12,
+    nx.draw_networkx_labels(H, pos, font_size=6, ax=ax)
+    nx.draw_networkx_edges(H, pos, width=edge_widths, alpha=0.35,
+                           arrows=True, arrowsize=10,
                            connectionstyle="arc3,rad=0.1", ax=ax)
-
     sm = plt.cm.ScalarMappable(cmap=plt.cm.RdYlGn, norm=norm)
     sm.set_array([])
-    fig.colorbar(sm, ax=ax, label="Hub score (green = topic originator)")
-
+    fig.colorbar(sm, ax=ax, label="Hub score (green=originator, red=receiver)")
     ax.set_title(
         f"Submolt Topic Diffusion Network (top {top_n} by PageRank)\n"
-        "Node size = PageRank  |  Color = Hub score  |  Edge weight = shared hashtags",
-        fontsize=11,
-    )
+        "Node size=PageRank  |  Color=Hub score  |  Edge weight=shared hashtags",
+        fontsize=11)
     ax.axis("off")
     fig.tight_layout()
     fig.savefig(out_path, dpi=150)
@@ -373,42 +396,30 @@ def plot_diffusion_network(G, cent_df, out_path, top_n=30):
     print(f"  wrote {out_path}")
 
 
-def plot_adoption_curves(first_touch, topic_df, out_path, top_n=6):
-    """
-    For the top N most-spread hashtags, plot cumulative submolt adoption over time.
-    Shows whether spread is fast/broadcast or slow/viral.
-    """
-    top_topics = (topic_df
-                  .sort_values("n_submolts", ascending=False)
-                  .head(top_n)["hashtag"]
-                  .tolist())
-    if not top_topics:
+def plot_adoption_curves(first_touch: dict, topic_df: pd.DataFrame,
+                         out_path: Path, top_n: int = 6):
+    top_tags = (topic_df.sort_values("n_submolts", ascending=False)
+                        .head(top_n)["hashtag"].tolist())
+    if not top_tags:
         return
 
-    fig, axes = plt.subplots(
-        (len(top_topics) + 1) // 2, 2,
-        figsize=(14, 4 * ((len(top_topics) + 1) // 2)),
-        squeeze=False,
-    )
-    axes_flat = [ax for row in axes for ax in row]
+    cols = min(2, len(top_tags))
+    rows = (len(top_tags) + 1) // 2
+    fig, axes = plt.subplots(rows, cols, figsize=(14, 4 * rows), squeeze=False)
+    axes_flat  = [ax for row in axes for ax in row]
 
-    for i, tag in enumerate(top_topics):
-        ax = axes_flat[i]
+    for i, tag in enumerate(top_tags):
+        ax    = axes_flat[i]
         times = sorted(first_touch[tag].values())
-        if not times:
-            continue
-        t0 = times[0]
+        t0    = times[0]
         hours = [(t - t0).total_seconds() / 3600 for t in times]
-        cumulative = list(range(1, len(hours) + 1))
-
-        ax.step(hours, cumulative, where="post", linewidth=2)
+        ax.step(hours, range(1, len(hours) + 1), where="post", lw=2)
         ax.set_xlabel("Hours after first appearance")
-        ax.set_ylabel("Cumulative submolts reached")
+        ax.set_ylabel("Submolts reached")
         ax.set_title(f"#{tag}  ({len(times)} submolts)")
         ax.grid(True, alpha=0.3)
 
-    # Hide any spare axes
-    for j in range(len(top_topics), len(axes_flat)):
+    for j in range(len(top_tags), len(axes_flat)):
         axes_flat[j].set_visible(False)
 
     fig.suptitle("Hashtag Adoption Curves: How Fast Do Topics Spread Across Submolts?",
@@ -420,85 +431,89 @@ def plot_adoption_curves(first_touch, topic_df, out_path, top_n=6):
 
 
 # ---------------------------------------------------------------------------
-# Summary narrative
+# Summary
 # ---------------------------------------------------------------------------
 
-def write_summary(submolt_cent, agent_cent, topic_df, edges_df, out_path):
+def write_summary(submolt_cent, agent_cent, topic_df, edges_df, source, out_path):
     n_topics   = len(topic_df)
     n_submolts = len(submolt_cent)
-    n_agents   = len(agent_cent)
+    n_agents   = len(agent_cent) if not agent_cent.empty else 0
     n_edges    = len(edges_df)
 
-    top_sub_pr  = submolt_cent.head(5)[["submolt", "pagerank", "hub_score", "betweenness"]]
-    top_sub_hub = submolt_cent.sort_values("hub_score", ascending=False).head(5)
-    top_agents  = agent_cent.head(5)[["agent", "pagerank", "betweenness"]]
-
-    # Correlation: submolt out_weight vs in_weight (originators vs receivers)
+    corr, pval = (float("nan"), float("nan"))
     if n_submolts > 2:
-        corr, pval = spearmanr(submolt_cent["out_weight"], submolt_cent["in_weight"])
-    else:
-        corr, pval = float("nan"), float("nan")
+        try:
+            corr, pval = spearmanr(submolt_cent["out_weight"],
+                                   submolt_cent["in_weight"])
+        except Exception:
+            pass
 
     with open(out_path, "w", encoding="utf-8") as f:
         f.write("WHO DRIVES INFORMATION FLOW? TOPIC DIFFUSION ANALYSIS\n")
         f.write("=" * 70 + "\n\n")
+        f.write(f"Data source: {source}\n\n")
 
-        f.write("METHODOLOGY (Reddit Hyperlink Analogue)\n")
+        f.write("METHODOLOGY\n")
         f.write("-" * 40 + "\n")
-        f.write("  Reddit analysis: directed edge A → B when a post in subreddit A\n")
-        f.write("  contains a hyperlink to subreddit B.\n\n")
-        f.write("  Moltbook analysis: directed edge A → B when submolt A is the\n")
-        f.write("  first community to adopt a hashtag that later appears in submolt B.\n")
+        f.write("  Reddit:   directed edge A -> B when a post in subreddit A\n")
+        f.write("            contains a hyperlink to subreddit B.\n")
+        f.write("  Moltbook: directed edge A -> B when submolt A is the first\n")
+        f.write("            community to adopt a hashtag later seen in submolt B.\n")
         f.write("  Edge weight = number of hashtags where A preceded B.\n\n")
 
-        f.write("DATASET OVERVIEW\n")
+        f.write("DATASET\n")
         f.write("-" * 40 + "\n")
-        f.write(f"  Hashtags analyzed:          {n_topics}\n")
-        f.write(f"  Submolts in diffusion graph: {n_submolts}\n")
-        f.write(f"  Directed submolt edges:      {n_edges}\n")
-        f.write(f"  Agents in reply graph:       {n_agents}\n\n")
+        f.write(f"  Hashtags analyzed:           {n_topics:,}\n")
+        f.write(f"  Submolts in diffusion graph: {n_submolts:,}\n")
+        f.write(f"  Directed submolt edges:      {n_edges:,}\n")
+        f.write(f"  Agents in reply graph:       {n_agents:,}\n")
         if not topic_df.empty:
             f.write(f"  Avg submolts per hashtag:    {topic_df['n_submolts'].mean():.1f}\n")
-            f.write(f"  Avg spread time (hrs):       {topic_df['spread_hours'].mean():.1f}\n\n")
-
-        f.write("SUBMOLT INFLUENCE RANKINGS (PageRank)\n")
-        f.write("-" * 40 + "\n")
-        f.write("  High PageRank = receives topics from other influential submolts.\n")
-        f.write("  (Analogous to high PageRank subreddits in Reddit hyperlink graph)\n\n")
-        for _, row in top_sub_pr.iterrows():
-            f.write(f"  {row['submolt']:30s}  PR={row['pagerank']:.4f}  "
-                    f"hub={row['hub_score']:.4f}  bet={row['betweenness']:.4f}\n")
+            f.write(f"  Avg spread time (hrs):       {topic_df['spread_hours'].mean():.1f}\n")
         f.write("\n")
 
-        f.write("TOP TOPIC ORIGINATORS (Hub Score)\n")
+        f.write("TOP SUBMOLTS BY PAGERANK (most influential in diffusion)\n")
         f.write("-" * 40 + "\n")
-        f.write("  High hub score = this submolt adopts hashtags first, before others.\n\n")
-        for _, row in top_sub_hub.iterrows():
-            f.write(f"  {row['submolt']:30s}  hub={row['hub_score']:.4f}  "
-                    f"out_degree={row['out_degree']}\n")
+        for _, row in submolt_cent.head(15).iterrows():
+            f.write(f"  {row['submolt']:35s}  PR={row['pagerank']:.5f}  "
+                    f"hub={row['hub_score']:.5f}  bet={row['betweenness']:.5f}\n")
         f.write("\n")
 
-        f.write("AGENT INFLUENCE RANKINGS (PageRank)\n")
+        f.write("TOP TOPIC ORIGINATORS (hub score)\n")
         f.write("-" * 40 + "\n")
-        f.write("  High PageRank agents receive many replies from well-connected agents.\n\n")
-        for _, row in top_agents.iterrows():
-            f.write(f"  {str(row['agent']):30s}  PR={row['pagerank']:.4f}  "
-                    f"bet={row['betweenness']:.4f}\n")
+        for _, row in submolt_cent.sort_values("hub_score", ascending=False).head(15).iterrows():
+            f.write(f"  {row['submolt']:35s}  hub={row['hub_score']:.5f}  "
+                    f"out_deg={row['out_degree']:4d}  "
+                    f"out_weight={int(row['out_weight']):5d}\n")
         f.write("\n")
 
-        f.write("CROSS-LEVEL COMPARISON\n")
+        if n_agents > 0:
+            f.write("TOP AGENTS BY PAGERANK\n")
+            f.write("-" * 40 + "\n")
+            for _, row in agent_cent.head(10).iterrows():
+                f.write(f"  {str(row['agent']):35s}  PR={row['pagerank']:.5f}  "
+                        f"bet={row['betweenness']:.5f}\n")
+            f.write("\n")
+
+        f.write("CROSS-LEVEL\n")
         f.write("-" * 40 + "\n")
-        f.write(f"  Out-weight vs In-weight correlation (submolts): "
-                f"r={corr:.3f} (p={pval:.3f})\n")
-        f.write("  → Are the submolts that send many topics also the ones that receive many?\n")
+        f.write(f"  Out-weight vs In-weight Spearman r = {corr:.3f}  (p={pval:.3f})\n")
         if not np.isnan(corr):
             if corr > 0.5:
-                f.write("    Yes — the same submolts dominate both sending and receiving.\n")
+                f.write("  -> Same submolts dominate both sending and receiving topics.\n")
             elif corr < 0:
-                f.write("    No — senders and receivers are distinct communities.\n")
+                f.write("  -> Senders and receivers are distinct communities.\n")
             else:
-                f.write("    Weakly — some specialization between originators and receivers.\n")
+                f.write("  -> Weak specialisation between originators and receivers.\n")
         f.write("\n")
+
+        top_spread = topic_df.sort_values("spread_hours").head(5)
+        f.write("FASTEST-SPREADING HASHTAGS\n")
+        f.write("-" * 40 + "\n")
+        for _, row in top_spread.iterrows():
+            f.write(f"  #{row['hashtag']:30s}  {row['n_submolts']:3d} submolts  "
+                    f"spread={row['spread_hours']:.1f}h  "
+                    f"origin={row['first_submolt']}\n")
 
     print(f"  wrote {out_path}")
 
@@ -510,13 +525,12 @@ def write_summary(submolt_cent, agent_cent, topic_df, edges_df, out_path):
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument("--data",  default="data",    type=Path)
-    parser.add_argument("--out",   default="figures", type=Path)
-    parser.add_argument("--min-submolts", default=2, type=int,
-                        help="minimum submolts a hashtag must appear in to create edges")
-    parser.add_argument("--top-n", default=20, type=int,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--data",         default="data",    type=Path)
+    parser.add_argument("--out",          default="figures", type=Path)
+    parser.add_argument("--min-submolts", default=2,         type=int,
+                        help="min submolts a hashtag must reach to create edges")
+    parser.add_argument("--top-n",        default=20,        type=int,
                         help="top N submolts shown in charts")
     args = parser.parse_args()
     args.out.mkdir(exist_ok=True)
@@ -524,64 +538,62 @@ def main():
     # ------------------------------------------------------------------
     # Load data
     # ------------------------------------------------------------------
-    print("Loading data...")
+    print("Loading posts...")
+    posts_df, source = load_posts_df(args.data)
+    print(f"  {len(posts_df):,} posts | "
+          f"{posts_df['submolt'].nunique():,} submolts | source={source}")
 
-    posts_path   = args.data / "posts.json"
-    comments_path = args.data / "comments.json"
-    reply_path   = args.data / "agent_reply_edges.csv"
+    print("Loading comments...")
+    comments_df = load_comments_df(args.data)
+    print(f"  {len(comments_df):,} comments")
 
-    if not posts_path.exists():
-        raise SystemExit(f"Missing {posts_path} — run fetch_data.py first.")
-
-    posts = json.load(open(posts_path, encoding="utf-8"))
-    print(f"  {len(posts):,} posts loaded")
-
-    comments = []
-    if comments_path.exists():
-        comments = json.load(open(comments_path, encoding="utf-8"))
-        print(f"  {len(comments):,} comments loaded")
+    print("Loading reply graph...")
+    reply_df = load_reply_df(args.data)
+    if reply_df is not None:
+        print(f"  {len(reply_df):,} reply edges")
     else:
-        print("  comments.json not found — analysis will use posts only.")
+        print("  agent_reply_edges.csv not found — skipping agent-level analysis")
 
-    reply_df = None
-    if reply_path.exists():
-        reply_df = pd.read_csv(reply_path)
-        print(f"  {len(reply_df):,} reply edges loaded")
-    else:
-        print("  agent_reply_edges.csv not found — skipping agent-level analysis.")
+    print("Loading pre-built shared-agent graph (if available)...")
+    G_shared = load_shared_agent_graph(args.data)
 
     # ------------------------------------------------------------------
-    # Submolt-level: hashtag diffusion
+    # Hashtag first-touch
     # ------------------------------------------------------------------
-    print("\nBuilding hashtag first-touch map...")
-    first_touch = build_first_touch(posts, comments)
+    print(f"\nExtracting hashtag first-touch across submolts "
+          f"(this may take a moment for large datasets)...")
+    first_touch = build_first_touch(posts_df, comments_df if not comments_df.empty else None)
     print(f"  {len(first_touch):,} unique hashtags found")
 
     if not first_touch:
-        print("No hashtags found in posts/comments. Exiting.")
+        print("No hashtags found in data. Exiting.")
         return
 
+    # ------------------------------------------------------------------
+    # Submolt diffusion graph
+    # ------------------------------------------------------------------
     print("\nBuilding submolt diffusion graph...")
-    G_sub, edges_df, topic_df = build_submolt_diffusion_graph(
+    G_diff, edges_df, topic_df = build_submolt_diffusion_graph(
         first_touch, min_submolts=args.min_submolts)
 
-    # Filter topic_df to only hashtags that actually made edges
-    topic_df_spread = topic_df[topic_df["n_submolts"] >= args.min_submolts].copy()
-    print(f"  {len(topic_df_spread):,} hashtags spread to >= {args.min_submolts} submolts")
+    topic_spread = topic_df[topic_df["n_submolts"] >= args.min_submolts].copy()
+    print(f"  {len(topic_spread):,} hashtags spread to >= {args.min_submolts} submolts")
+    print(f"  Diffusion graph: {G_diff.number_of_nodes():,} nodes, "
+          f"{G_diff.number_of_edges():,} edges")
 
+    # ------------------------------------------------------------------
+    # Centrality
+    # ------------------------------------------------------------------
     print("\nComputing submolt centrality...")
-    submolt_cent = compute_submolt_centrality(G_sub)
+    submolt_cent = compute_submolt_centrality(G_diff)
 
-    # ------------------------------------------------------------------
-    # Agent-level: reply graph
-    # ------------------------------------------------------------------
     agent_cent = pd.DataFrame()
     if reply_df is not None:
         print("\nComputing agent centrality...")
         agent_cent, _ = compute_agent_centrality(reply_df)
 
     # ------------------------------------------------------------------
-    # Save CSVs
+    # Outputs
     # ------------------------------------------------------------------
     print("\nWriting outputs...")
 
@@ -591,6 +603,11 @@ def main():
     if not submolt_cent.empty:
         submolt_cent.to_csv(args.out / "submolt_centrality.csv", index=False)
         print(f"  wrote {args.out / 'submolt_centrality.csv'}")
+        plot_submolt_ranking(submolt_cent, args.out / "submolt_influence_ranking.png",
+                             top_n=args.top_n)
+        plot_diffusion_network(G_diff, submolt_cent,
+                               args.out / "topic_diffusion_network.png",
+                               top_n=args.top_n)
 
     if not agent_cent.empty:
         agent_cent.to_csv(args.out / "agent_centrality.csv", index=False)
@@ -599,42 +616,34 @@ def main():
     topic_df.to_csv(args.out / "topic_first_touch.csv", index=False)
     print(f"  wrote {args.out / 'topic_first_touch.csv'}")
 
-    # ------------------------------------------------------------------
-    # Plots
-    # ------------------------------------------------------------------
-    if not submolt_cent.empty:
-        plot_submolt_ranking(submolt_cent, args.out / "submolt_influence_ranking.png",
-                             top_n=args.top_n)
-        plot_diffusion_network(G_sub, submolt_cent,
-                               args.out / "topic_diffusion_network.png",
-                               top_n=args.top_n)
-
-    if not topic_df_spread.empty:
-        plot_adoption_curves(first_touch, topic_df_spread,
+    if not topic_spread.empty:
+        plot_adoption_curves(first_touch, topic_spread,
                              args.out / "hashtag_adoption_curves.png", top_n=6)
 
-    # ------------------------------------------------------------------
-    # Summary
-    # ------------------------------------------------------------------
-    write_summary(submolt_cent, agent_cent, topic_df_spread, edges_df,
-                  args.out / "diffusion_summary.txt")
+    write_summary(submolt_cent, agent_cent, topic_spread, edges_df,
+                  source, args.out / "diffusion_summary.txt")
 
     # ------------------------------------------------------------------
     # Console summary
     # ------------------------------------------------------------------
-    print("\n" + "=" * 60)
-    print("QUICK RESULTS")
-    print("=" * 60)
+    print("\n" + "=" * 65)
+    print("RESULTS SNAPSHOT")
+    print("=" * 65)
     if not submolt_cent.empty:
-        print(f"\nTop submolts by PageRank (most influential in topic diffusion):")
+        print(f"\nTop submolts by PageRank:")
         for _, row in submolt_cent.head(10).iterrows():
-            print(f"  {row['submolt']:30s}  PR={row['pagerank']:.4f}  "
-                  f"hub={row['hub_score']:.4f}  out_deg={row['out_degree']}")
+            print(f"  {row['submolt']:35s}  PR={row['pagerank']:.5f}  "
+                  f"hub={row['hub_score']:.5f}")
+        print(f"\nTop topic originators (hub score):")
+        for _, row in (submolt_cent
+                       .sort_values("hub_score", ascending=False)
+                       .head(10).iterrows()):
+            print(f"  {row['submolt']:35s}  hub={row['hub_score']:.5f}  "
+                  f"out_weight={int(row['out_weight'])}")
     if not agent_cent.empty:
-        print(f"\nTop agents by PageRank (most influential in reply network):")
+        print(f"\nTop agents by PageRank:")
         for _, row in agent_cent.head(10).iterrows():
-            print(f"  {str(row['agent']):30s}  PR={row['pagerank']:.4f}  "
-                  f"bet={row['betweenness']:.4f}")
+            print(f"  {str(row['agent']):35s}  PR={row['pagerank']:.5f}")
     print("\nDone.")
 
 

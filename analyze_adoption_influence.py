@@ -393,29 +393,81 @@ def main():
     args = parser.parse_args()
     args.out.mkdir(exist_ok=True)
 
-    # Load data
+    # Load data — supports v2 CSV (data/data/tables/posts.csv) and v1 JSON
     print("Loading data...")
-    posts_path = args.data / "posts.json"
-    comments_path = args.data / "comments.json"
-    reply_path = args.data / "agent_reply_edges.csv"
 
-    for p in (posts_path, comments_path, reply_path):
+    def _load_posts(data_dir):
+        for csv_rel in ("data/tables/posts.csv", "tables/posts.csv"):
+            p = data_dir / csv_rel
+            if p.exists():
+                print(f"  posts: {p} (v2 CSV)")
+                df = pd.read_csv(p, dtype=str, low_memory=False)
+                df = df.rename(columns={"post_id": "id"})
+                df["content"] = df.get("content", pd.Series([""] * len(df))).fillna("")
+                df["title"]   = df["title"].fillna("")
+                # Convert to list of dicts matching v1 field expectations
+                posts = []
+                for _, row in df.iterrows():
+                    posts.append({
+                        "id":         row.get("id", ""),
+                        "author_id":  row.get("author", ""),
+                        "submolt":    row.get("submolt", ""),
+                        "created_at": row.get("created_at", ""),
+                        "title":      row.get("title", ""),
+                        "content":    row.get("content", ""),
+                    })
+                return posts
+        p = data_dir / "posts.json"
+        if p.exists():
+            print(f"  posts: {p} (v1 JSON)")
+            raw = json.load(open(p, encoding="utf-8"))
+            for post in raw:
+                if not post.get("author_id"):
+                    post["author_id"] = (post.get("author") or {}).get("name") or \
+                                        (post.get("author") or {}).get("id")
+                if not post.get("submolt"):
+                    post["submolt"] = (post.get("submolt_obj") or {}).get("name") or \
+                                       post.get("submolt_name")
+            return raw
+        raise SystemExit(f"No posts data found under {data_dir}")
+
+    def _load_comments(data_dir):
+        p = data_dir / "comments.json"
         if not p.exists():
-            raise SystemExit(f"missing {p}; run fetch_data.py first")
+            print("  comments: none found — topic adoption from posts only")
+            return []
+        print(f"  comments: {p}")
+        raw = json.load(open(p, encoding="utf-8"))
+        def _flatten(lst):
+            out = []
+            for c in lst:
+                replies = c.pop("replies", None) or []
+                out.append(c)
+                out.extend(_flatten(replies))
+            return out
+        return _flatten(raw)
 
-    posts = json.load(open(posts_path, encoding="utf-8"))
-    comments = json.load(open(comments_path, encoding="utf-8"))
-    reply_df = pd.read_csv(reply_path)
+    posts    = _load_posts(args.data)
+    comments = _load_comments(args.data)
 
-    # Build network and compute centralities
-    print("\nBuilding reply graph and computing centralities...")
-    G_reply = build_reply_graph(reply_df)
-    print(f"Reply graph: {G_reply.number_of_nodes():,} agents, {G_reply.number_of_edges():,} edges")
+    reply_path = args.data / "agent_reply_edges.csv"
+    if reply_path.exists():
+        reply_df = pd.read_csv(reply_path)
+        print(f"  reply edges: {len(reply_df):,} rows")
+    else:
+        reply_df = None
+        print("  agent_reply_edges.csv not found — skipping network centrality")
 
-    cents_df = compute_centralities(G_reply)
-    if cents_df.empty:
-        print("No centrality data; exiting.")
-        return
+    # Build network and compute centralities (skipped if no reply data)
+    cents_df = pd.DataFrame()
+    if reply_df is not None:
+        print("\nBuilding reply graph and computing centralities...")
+        G_reply  = build_reply_graph(reply_df)
+        print(f"Reply graph: {G_reply.number_of_nodes():,} agents, "
+              f"{G_reply.number_of_edges():,} edges")
+        cents_df = compute_centralities(G_reply)
+    else:
+        print("\nSkipping agent centrality (no reply edge data).")
 
     # Extract topics
     print("\nExtracting topics...")
@@ -444,7 +496,12 @@ def main():
                   f"vs late: {result['late_betweenness_mean']:.4f}")
 
     if not topic_results:
-        print("No topics passed the min-adopters threshold.")
+        if cents_df.empty:
+            print("\nNo centrality data available — topic adoption rankings require "
+                  "agent_reply_edges.csv.\nTopic first-touch data written to "
+                  f"{args.out / 'adopter_centralities.csv'} where available.")
+        else:
+            print("No topics passed the min-adopters threshold.")
         return
 
     # Write outputs

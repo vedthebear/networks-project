@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\Riley\\\\Desktop\\\\networks-project\\\\data\")",
+      "Bash(dir \"C:\\\\Users\\\\Riley\\\\Desktop\\\\networks-project\\\\data\\\\tables\")",
+      "Bash(git ls-tree *)",
+      "Bash(git fetch *)",
+      "Bash(python analyze_topic_diffusion.py --data data --top-n 20)",
+      "Skill(update-config)",
+      "Skill(update-config:*)"
+    ]
+  }
+}
