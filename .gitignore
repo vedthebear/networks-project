@@ -2,6 +2,7 @@
 .env
 
 # large data (regenerate with run_all.py)
+*data/
 data/data/
 data/archive/
 data/reddit/
