@@ -1,0 +1,6 @@
+distribution,n,max,mean,alpha,k_min,ks_distance,n_tail,R_vs_lognormal,p_vs_lognormal,R_vs_exponential,p_vs_exponential,verdict
+Reddit subreddit degree,35776,2336,6.95,1.8,1.0,0.0147,35776,-10.78,0.0,33.54,0.0,heavy-tailed but lognormal fits at least as well
+Moltbook submolt degree (core),527,401,96.57,2.955,111.0,0.1607,202,-4.89,0.0,-8.31,0.0,no clear power-law tail
+Moltbook posts per submolt,2654,508388,410.66,1.71,281.0,0.0429,185,-0.84,0.401,2.6,0.009,heavy-tailed; power law plausible
+Moltbook authors per submolt,2654,11401,22.47,1.623,4.0,0.0294,622,-1.92,0.055,5.55,0.0,heavy-tailed but lognormal fits at least as well
+Moltbook posts per agent,27342,20771,39.86,1.59,2.0,0.0214,16706,-8.2,0.0,32.0,0.0,heavy-tailed but lognormal fits at least as well

@@ -1,0 +1,6 @@
+distribution,n,gini,top_1pct_share,top_5pct_share,top_10pct_share
+Reddit subreddit degree,35776,0.76,0.344,0.601,0.716
+Moltbook submolt degree (core),527,0.501,0.035,0.157,0.29
+Moltbook posts per submolt,2654,0.975,0.809,0.942,0.973
+Moltbook authors per submolt,2654,0.918,0.618,0.858,0.916
+Moltbook posts per agent,27342,0.914,0.542,0.815,0.897

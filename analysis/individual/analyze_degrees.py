@@ -181,13 +181,20 @@ def make_comparison_figure(fits: dict) -> None:
         "Moltbook submolt degree (full)": ("#E69F00", "^"),
     }
     for label, (color, marker) in palette.items():
+        if label not in fits:
+            print(f"  [skip] {label} not found in fits; skipping")
+            continue
         values, res = fits[label]
         xs, p = ccdf(values)
         ax.scatter(xs, p, s=12, color=color, marker=marker, alpha=0.55,
                    edgecolors="none", label=f"{label}  (α≈{res['alpha']:.2f})")
         # overlay the fitted power-law CCDF on its tail (k >= k_min)
         fit = res["_fit"]
-        fit.power_law.plot_ccdf(ax=ax, color=color, linestyle="--", linewidth=1.5)
+        try:
+            fit.power_law.plot_ccdf(ax=ax, color=color, linestyle="--", linewidth=1.5)
+        except Exception:
+            # if plotting the fitted CCDF fails for whatever reason, continue
+            pass
 
     ax.set_xscale("log")
     ax.set_yscale("log")

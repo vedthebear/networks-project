@@ -12,7 +12,10 @@
       "Bash(grep -v \"^$\")",
       "Bash(grep \"\\\\.py$\")",
       "Bash(git checkout *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(mv fetch_data.py archive/)"
     ]
   }
 }

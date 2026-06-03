@@ -1,0 +1,11 @@
+{
+  "nodes": 2654,
+  "edges": 29149,
+  "density": 0.008279716894979763,
+  "avg_clustering": 0.013070609271546648,
+  "min_shared": 2,
+  "n_components": 1788,
+  "largest_component_frac": 0.3262999246420497,
+  "max_degree": 630,
+  "mean_degree": 21.96608892238131
+}
