@@ -246,11 +246,11 @@ The null-relative within-core ρ is the key comparable metric: both platforms be
 
 | Author | Contribution |
 |---|---|
-| Riley Leong | Moltbook data collection (v1 + v2 scraping pipeline); individual-level concentration and adoption analysis |
-| August Curtis | Individual-level agent graph analysis; reciprocity and attention metrics |
+| August Curtis | Moltbook Data Collection, Individual-level agent graph analysis; reciprocity and attention metrics |
 | Linlong Wang | Individual-level analysis; concentration measures |
 | Samuel Kelly | Reddit hyperlink community graph; IC/SIR diffusion (RQ1); core-periphery (RQ4); reciprocity (RQ5) |
 | Ved Vedere | Moltbook community graph; core-periphery comparison (RQ3); cohesion analysis (RQ1 Moltbook side) |
+| Riley Leong | Moltbook data collection (v1 + v2 scraping pipeline); individual-level concentration and adoption analysis |
 
 ---
 
