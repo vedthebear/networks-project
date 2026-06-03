@@ -7,7 +7,12 @@
       "Bash(git fetch *)",
       "Bash(python analyze_topic_diffusion.py --data data --top-n 20)",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "Bash(grep -E \"\\\\.py$|\\\\.md$|\\\\.txt$|\\\\.sh$\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(grep \"\\\\.py$\")",
+      "Bash(git checkout *)",
+      "Bash(git add *)"
     ]
   }
 }
