@@ -100,11 +100,11 @@ def draw_row(ax_real, ax_null, null, real, label, color, ymax):
         ax.grid(True, axis="y", linestyle="--", alpha=0.3, color="#cccccc")
     break_marks(ax_real, ax_null)
 
-    # comparable effect size (raw gap, the honest cross-platform quantity) and
-    # significance; sigma is shown too but the raw gap is the headline.
+    # The paper frames this comparison by the raw gap below the null (the honest
+    # cross-platform quantity), not by sigma. Keep gap + p; drop sigma.
     gap = real - null.mean()
-    return (f"{label}:   real ρ = {real:.2f},  {gap:+.2f} below null   "
-            f"({sigma_gap(null, real):.0f}σ,  {p_str(null, real)})")
+    return (f"{label}:   within-core ρ = {real:.2f},  "
+            f"{gap:+.2f} below its null   ({p_str(null, real)})")
 
 
 def main():
@@ -128,9 +128,9 @@ def main():
 
     fig.suptitle(
         "Central communities are bridges on BOTH platforms, far beyond chance\n"
-        "within-core k-core / clustering correlation vs degree-preserving null",
+        "within-core (k ≥ 2) k-core / clustering correlation vs degree-preserving null",
         fontsize=13, fontweight="bold", y=0.98)
-    fig.supxlabel("within-core Spearman ρ  (k-core vs clustering);  "
+    fig.supxlabel("within-core (k ≥ 2) Spearman ρ  (k-core vs clustering);  "
                   "negative = central communities bridge between groups",
                   fontsize=10, y=0.02)
     out = FIGS / "null_spearman_comparison.png"
